@@ -30,7 +30,8 @@ public class Block
 		NORMAL_COLOR_NUM = GRAY, // 일반 색상(그레이 이외 색)의 수.
 		Bomb,//4매치 폭탄, 검정색
 		POP5,//5매치 폭탄, 흰색
-		Obstacle//장애물
+		Obstacle,//장애물
+		FeverItem// 피버타임 폭탄
 	};
 
 	public enum DIR4
@@ -317,6 +318,10 @@ public class BlockControl : MonoBehaviour
 			case Block.COLOR.Obstacle://2023 0510 bomb 컬러 추가
 				color_value = Color.black;
 				break;
+			case Block.COLOR.FeverItem://20230511 FEVER BOMB추가
+				color_value = new Color(0.7f, 0.3f, 1.0f);
+				break;
+
 		}
 		// 이 GameObject의 머티리얼 색상을 변경.
 		this.GetComponent<Renderer>().material.color = color_value;

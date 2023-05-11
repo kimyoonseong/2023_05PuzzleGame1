@@ -96,6 +96,7 @@ public class ScoreCounter : MonoBehaviour
 			this.last.combo = 0;
 		}
 	}
+	
 
 	public bool isGameClear()
 	{

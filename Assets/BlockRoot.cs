@@ -70,12 +70,12 @@ public class BlockRoot : MonoBehaviour
 								this.blocks[block.i_pos.x, y].toVanishing();
 
 							}
-							
+							this.score_counter.DiffBlockCount(1);//20230511점수카운트
 						}
 						else if(block.color == Block.COLOR.POP5)//20230510 5매치폭탄 눌렸을때
                         {
-							Debug.Log(block.color);
-							Debug.Log( block.pop5Color);
+							//Debug.Log(block.color);
+							//Debug.Log( block.pop5Color);
 							//for(int x = 0; x < Block.BLOCK_NUM_X; x++)
        //                     {
 							//	for(int y=0; y < Block.BLOCK_NUM_Y; y++)
@@ -94,8 +94,18 @@ public class BlockRoot : MonoBehaviour
 								}
 							}
 							this.blocks[block.i_pos.x, block.i_pos.y].toVanishing();
-
-
+							this.score_counter.DiffBlockCount(1);
+						}
+						else if (block.color == Block.COLOR.FeverItem)//20230511 피버모드 아이템
+                        {
+							
+							for(int i = -1; i < 2; i++)
+                            {
+								for (int j = -1; j < 2; j++)
+                                {
+									this.blocks[block.i_pos.x+i, block.i_pos.y+j].toVanishing();
+								}
+                            }
 						}
 						// 처리 중인 블록을 grabbed_block에 등록.
 						this.grabbed_block = block;
@@ -166,11 +176,14 @@ public class BlockRoot : MonoBehaviour
 						this.score_counter.DiffBlockCount(match_count1); //매치된 보석수 scorecounter스크립트 함수에 삽입 20230504
 						this.score_counter.ComboCount(0, true);		//콤보카운트 변경
 						checkcheck = false;     //check check를 false로 변경
-       //                 if (this.checkConnection4(block))
-       //                 {
-							//block.color = Block.COLOR.Bomb;
-							//Debug.Log("됐다");
-       //                 }
+						for(int i = 1; i < 9; i++)
+                        {
+							if (this.score_counter.last.combo == 7*i)
+							{
+								CreateFeverBlock();
+							}
+						}
+                        
 						break;
 						
 					}
@@ -633,9 +646,9 @@ public class BlockRoot : MonoBehaviour
 					this.blocks[x, start.i_pos.y].toVanishing();
 					ret = true;
 				}
-				this.blocks[start.i_pos.x, start.i_pos.y].pop5Color = this.blocks[start.i_pos.x, start.i_pos.y].color;
+				this.blocks[start.i_pos.x, start.i_pos.y].pop5Color = this.blocks[start.i_pos.x, start.i_pos.y].color;//pop5color는 색을 저장
 				this.blocks[start.i_pos.x, start.i_pos.y].color = Block.COLOR.POP5;
-				Debug.Log(this.blocks[start.i_pos.x, start.i_pos.y].pop5Color);
+				//Debug.Log(this.blocks[start.i_pos.x, start.i_pos.y].pop5Color);
 				//this.blocks[start.i_pos.y, start.i_pos.y].step = Block.STEP.FALL;
 			}
 			else
@@ -908,7 +921,15 @@ public class BlockRoot : MonoBehaviour
 	{
 		blocks[Random.Range(0, Block.BLOCK_NUM_X), Random.Range(0, Block.BLOCK_NUM_Y)].setColor(Block.COLOR.Obstacle);
 	}
-
+	//Range범위안에서 랜덤 블럭을 피버아이템 바꾸는함수//20230511
+	public void CreateFeverBlock()
+	{
+		for (int i = 0; i < 3; i++)//여기에 if문 넣어서 그 2,3스테이지 투명블럭은 제외하면 될듯?
+		{
+			blocks[Random.Range(0, Block.BLOCK_NUM_X), Random.Range(0, Block.BLOCK_NUM_Y)].setColor(Block.COLOR.FeverItem);
+		}
+		
+	}
 	//BlockRoot에서 장애물을 지우는 함수
 	public void DestroyInterruptBlock(BlockControl block)
 	{
