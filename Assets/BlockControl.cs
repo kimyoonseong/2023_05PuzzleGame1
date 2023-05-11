@@ -31,7 +31,8 @@ public class Block
 		Bomb,//4매치 폭탄, 검정색
 		POP5,//5매치 폭탄, 흰색
 		Obstacle,//장애물
-		FeverItem// 피버타임 폭탄
+		FeverItem,// 피버타임 폭탄
+		Wall	//투명벽
 	};
 
 	public enum DIR4
@@ -321,7 +322,9 @@ public class BlockControl : MonoBehaviour
 			case Block.COLOR.FeverItem://20230511 FEVER BOMB추가
 				color_value = new Color(0.7f, 0.3f, 1.0f);
 				break;
-
+			case Block.COLOR.Wall://20230511 투명벽 추가
+				color_value = new Color(1f, 1f, 1.0f, 0);
+				break;
 		}
 		// 이 GameObject의 머티리얼 색상을 변경.
 		this.GetComponent<Renderer>().material.color = color_value;

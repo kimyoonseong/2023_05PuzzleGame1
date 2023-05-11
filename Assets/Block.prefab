@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: cdb2e5cb4b76c064787aeab9f1e8d29e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -110,3 +110,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 006190bca9eb35d42af95f1a0f2be241, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  color: 0
+  pop5Color: -1
+  block_root: {fileID: 0}
+  step: -1
+  next_step: -1
+  position_offset: {x: 0, y: 0, z: 0}
+  vanish_timer: -1
+  slide_dir: -1
+  step_timer: 0
+  opaque_material: {fileID: 0}
+  transparent_material: {fileID: 0}

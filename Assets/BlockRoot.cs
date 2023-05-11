@@ -18,10 +18,15 @@ public class BlockRoot : MonoBehaviour
 	public LevelControl level_control; // LevelControl를 저장.
 
 
+	//class변수추가
+	private SceneControl stagenum;
+
 	void Start()
 	{
 		this.main_camera = GameObject.FindGameObjectWithTag("MainCamera");
 		this.score_counter = this.gameObject.GetComponent<ScoreCounter>();
+		//start부분 참조 추가
+		stagenum = GameObject.Find("GameRoot").GetComponent<SceneControl>();
 	}
 
 
@@ -40,7 +45,7 @@ public class BlockRoot : MonoBehaviour
 				if (Input.GetMouseButtonDown(0))
 				{ // 마우스 버튼이 눌렸다면.
 				  // blocks 배열의 모든 요소를 차례로 처리한다.
-				  
+
 					foreach (BlockControl block in this.blocks)
 					{
 						if (!block.isGrabbable())
@@ -53,39 +58,31 @@ public class BlockRoot : MonoBehaviour
 							continue; // 다음 블록으로.
 						}
 						Debug.Log(block.pop5Color);
-                        if (block.color == Block.COLOR.Bomb)//20230510 4매치폭탄 눌렸을때
-                        {
-							
+						if (block.color == Block.COLOR.Bomb)//20230510 4매치폭탄 눌렸을때
+						{
+
 							for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 							{
-								this.blocks[x, block.i_pos.y].toVanishing();							
+								if (blocks[x, block.i_pos.y].color != Block.COLOR.Wall)
+								{
+									this.blocks[x, block.i_pos.y].toVanishing();
+								}
 							}
-							for(int y=block.i_pos.y+1; y < Block.BLOCK_NUM_Y; y++)
-                            {
-								this.blocks[block.i_pos.x, y].toVanishing();
-								
-                            }
-							for (int y = 0; y <block.i_pos.y ; y++)
+							for (int y = block.i_pos.y + 1; y < Block.BLOCK_NUM_Y; y++)
 							{
-								this.blocks[block.i_pos.x, y].toVanishing();
+								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
+									this.blocks[block.i_pos.x, y].toVanishing();
 
 							}
+							for (int y = 0; y < block.i_pos.y; y++)
+							{
+								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
+									this.blocks[block.i_pos.x, y].toVanishing();
+							}						
 							this.score_counter.DiffBlockCount(1);//20230511점수카운트
 						}
 						else if(block.color == Block.COLOR.POP5)//20230510 5매치폭탄 눌렸을때
                         {
-							//Debug.Log(block.color);
-							//Debug.Log( block.pop5Color);
-							//for(int x = 0; x < Block.BLOCK_NUM_X; x++)
-       //                     {
-							//	for(int y=0; y < Block.BLOCK_NUM_Y; y++)
-       //                         {
-       //                             if (block.pop5Color == this.blocks[x, y].color)
-       //                             {
-							//			this.blocks[x,y].toVanishing();
-       //                             }
-       //                         }
-       //                     }
 							foreach (BlockControl block2 in this.blocks)
                             {
 								if (block.pop5Color == block2.color)
@@ -103,7 +100,8 @@ public class BlockRoot : MonoBehaviour
                             {
 								for (int j = -1; j < 2; j++)
                                 {
-									this.blocks[block.i_pos.x+i, block.i_pos.y+j].toVanishing();
+									if (blocks[block.i_pos.x + i, block.i_pos.y + j].color != Block.COLOR.Wall)
+										this.blocks[block.i_pos.x+i, block.i_pos.y+j].toVanishing();
 								}
                             }
 						}
@@ -336,6 +334,8 @@ public class BlockRoot : MonoBehaviour
 				}
 			}
 		} while (false);
+		CheckWall();
+		SetWall();
 		this.is_vanishing_prev = is_vanishing;
 	}
 
@@ -553,6 +553,11 @@ public class BlockRoot : MonoBehaviour
             {
 				break;
             }
+			if (start.color == Block.COLOR.Wall)
+			{
+				break;
+			}
+
 			if (next_block.color != start.color)
 			{ // 색이 다르면.
 				break; // 루프 탈출.
@@ -578,6 +583,10 @@ public class BlockRoot : MonoBehaviour
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.y];
 			if (start.color == Block.COLOR.Obstacle)
+			{
+				break;
+			}
+			if (start.color == Block.COLOR.Wall)
 			{
 				break;
 			}
@@ -678,6 +687,10 @@ public class BlockRoot : MonoBehaviour
 			{
 				break;
 			}
+			if (start.color == Block.COLOR.Wall)
+			{
+				break;
+			}
 			if (next_block.color != start.color)
 			{
 				break;
@@ -703,6 +716,10 @@ public class BlockRoot : MonoBehaviour
 		{
 			BlockControl next_block = this.blocks[start.i_pos.x, y];
 			if (start.color == Block.COLOR.Obstacle)
+			{
+				break;
+			}
+			if (start.color == Block.COLOR.Wall)
 			{
 				break;
 			}
@@ -919,14 +936,33 @@ public class BlockRoot : MonoBehaviour
 	//Range범위안에서 랜덤 블럭을 장애물로 바꾸는함수
 	public void CreateInterruptBlock()
 	{
-		blocks[Random.Range(0, Block.BLOCK_NUM_X), Random.Range(0, Block.BLOCK_NUM_Y)].setColor(Block.COLOR.Obstacle);
+		int x = Random.Range(0, Block.BLOCK_NUM_X);
+		int y = Random.Range(0, Block.BLOCK_NUM_Y);
+		if (blocks[x, y].color != Block.COLOR.Wall)
+		{
+			blocks[x, y].setColor(Block.COLOR.Obstacle);
+		}
+		else
+		{
+			Debug.Log("check");
+			CreateInterruptBlock();
+		}
 	}
 	//Range범위안에서 랜덤 블럭을 피버아이템 바꾸는함수//20230511
 	public void CreateFeverBlock()
 	{
 		for (int i = 0; i < 3; i++)//여기에 if문 넣어서 그 2,3스테이지 투명블럭은 제외하면 될듯?
 		{
-			blocks[Random.Range(0, Block.BLOCK_NUM_X), Random.Range(0, Block.BLOCK_NUM_Y)].setColor(Block.COLOR.FeverItem);
+			int x = Random.Range(0, Block.BLOCK_NUM_X);
+			int y = Random.Range(0, Block.BLOCK_NUM_Y);
+			if (blocks[x, y].color == Block.COLOR.Wall)
+			{
+				i--;
+			}
+			else
+			{
+				blocks[x, y].setColor(Block.COLOR.FeverItem);
+			}
 		}
 		
 	}
@@ -950,7 +986,102 @@ public class BlockRoot : MonoBehaviour
 			blocks[block.i_pos.x, block.i_pos.y - 1].toVanishing();
 		}
 	}
+	public void SetWall()
+	{
+		for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
+		{ // 처음행부터 시작행부터 마지막행까지.
+			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
+			{
+				if (stagenum.NowStage() == 2)
+				{
+					//제일 오른쪽 아래
+					if (x > 5 && y == 0)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
 
+					if (x > 6 && y == 1)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+					if (x > 7 && y == 2)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+					//제일 왼쪽 아래
+					if (x < 3 && y == 0)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+					if (x < 2 && y == 1)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+					if (x < 1 && y == 2)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+
+					////제일 오른쪽 위
+					if (x > 5 && y == 8)
+					{
+						blocks[x, y].color = Block.COLOR.Wall;
+						//blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+					if (x > 6 && y == 7)
+					{
+						blocks[x, y].color = Block.COLOR.Wall;
+						//blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+
+					if (x > 7 && y == 6)
+					{
+						//blocks[x, y].setColor(Block.COLOR.Wall);
+						blocks[x, y].color = Block.COLOR.Wall;
+					}
+
+					////제일 왼쪽 아래
+					if (x < 3 && y == 8)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+					if (x < 2 && y == 7)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+					if (x < 1 && y == 6)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+				}
+			}
+		}
+	}
+
+	public void CheckWall()
+	{
+		for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
+		{ // 처음행부터 시작행부터 마지막행까지.
+			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
+			{
+				if (this.blocks[x, y].color == Block.COLOR.Wall)
+				{
+					int color_index = Random.Range(
+					(int)Block.COLOR.FIRST, (int)Block.COLOR.LAST + 1);
+					this.blocks[x, y].setColor((Block.COLOR)color_index);
+				}
+			}
+		}
+	}
 
 
 }
