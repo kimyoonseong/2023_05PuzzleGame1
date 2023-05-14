@@ -1063,6 +1063,30 @@ public class BlockRoot : MonoBehaviour
 						blocks[x, y].setColor(Block.COLOR.Wall);
 					}
 				}
+
+
+				if (stagenum.NowStage() == 3)
+				{
+					if (y==3 && x>2 && x < 6)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+					if (y == 4 && x > 2 && x < 6)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+					if (y == 5 && x > 2 && x < 6)
+					{
+						blocks[x, y].setColor(Block.COLOR.Wall);
+					}
+
+					blocks[0,0].setColor(Block.COLOR.Wall);
+					blocks[8, 0].setColor(Block.COLOR.Wall);
+					blocks[8, 8].setColor(Block.COLOR.Wall);
+					blocks[0, 8].setColor(Block.COLOR.Wall);
+				}
 			}
 		}
 	}

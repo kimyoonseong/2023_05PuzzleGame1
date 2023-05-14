@@ -24,10 +24,11 @@ public class SceneControl : MonoBehaviour
 	public GUIStyle guistyle; // 폰트 스타일.
 	public static int sceneNumber = 1;      //씬이동 관리하는 스태틱형 변수 20230506
 	public GameObject UIpanal;  //UI관리하는 패널		20230506
-	public GameObject ClearPanal;		//클리어 관리하는패널 다른데는 넣기만하고  마지막스테이지에서만 사용	0506
+	public GameObject ClearPanal;       //클리어 관리하는패널 다른데는 넣기만하고  마지막스테이지에서만 사용	0506
+	public GameObject LosePanal;       //실패 관리하는패널 다른데는 넣기만하고  마지막스테이지에서만 사용	0506
 	public Text scoretext;		//끝나면 패널에 남은시간 띄워줌 0506
 	public Text cleartext;		//모든 스테이지 끝나면 클리어텍스트로 남은시간띄워줌 0506
-	public int laststage = 2;       //라스트스테이지 이걸 변환해서 스테이지양 조절가능 20230506
+	private int laststage = 3;       //라스트스테이지 이걸 변환해서 스테이지양 조절가능 20230506
 
 	public int stagenum = sceneNumber;		//static형인 sceneNumber를 옮기기위해 stagenum 변수만듬 20230506
 
@@ -49,7 +50,23 @@ public class SceneControl : MonoBehaviour
 
 		UIpanal.SetActive(false);
 		ClearPanal.SetActive(false);
+		LosePanal.SetActive(false);
 		//timeText();
+
+		if(sceneNumber == 1)
+		{
+			Stage1_RemainTime = 90.0f;
+		}
+
+		else if (sceneNumber == 2)
+		{
+			Stage1_RemainTime = 80.0f;
+		}
+		else if (sceneNumber == 3)
+		{
+			Stage1_RemainTime = 70.0f;
+		}
+
 		stagenum = sceneNumber;
 	}
 
@@ -60,13 +77,20 @@ public class SceneControl : MonoBehaviour
 		switch (this.step)
 		{
 			case STEP.CLEAR:
-				stagenum = sceneNumber;		//해당 스테이지클리어시 stagenum을 현재 씬넘버로 변경 20230506
+				stagenum = sceneNumber;     //해당 스테이지클리어시 stagenum을 현재 씬넘버로 변경 20230506
+
+				// block_root를 정지.
+				if (stagenum < laststage)
+				{
+					SeeUI();
+				}
+				else
+				{
+					SeeClearUI();
+				}
 				break;
 			case STEP.FAIL:
-				if (Input.GetMouseButton(0))
-				{
-					SceneManager.LoadScene("TitleScene");
-				}
+				SeelosePanal();
 				break;
 		}
 
@@ -80,14 +104,6 @@ public class SceneControl : MonoBehaviour
 					// 클리어 조건을 만족하면.
 					if (this.score_counter.isGameClear())
 					{
-						if (sceneNumber < laststage)
-						{
-							SeeUI();
-						}
-						else
-						{
-							SeeClearUI();
-						}
 						this.next_step = STEP.CLEAR; // 클리어 상태로 이행.
 					}
 					else if (this.Stage1_RemainTime <= 0.0f)
@@ -106,7 +122,7 @@ public class SceneControl : MonoBehaviour
 			switch (this.step)
 			{
 				case STEP.CLEAR:
-					// block_root를 정지.
+
 					this.block_root.enabled = false;
 					// 경과 시간을 클리어 시간으로 설정.
 					this.clear_time = this.step_timer;
@@ -146,7 +162,7 @@ public class SceneControl : MonoBehaviour
 				//		  "초", guistyle);
 				//GUI.color = Color.white;
 				
-				//timeText();
+				timeText();
 				break;
 			case STEP.FAIL:
 				GUI.color = Color.black;
@@ -171,6 +187,11 @@ public class SceneControl : MonoBehaviour
 		ClearPanal.SetActive(true);
 	}
 
+	public void SeelosePanal()
+	{
+		LosePanal.SetActive(true);
+	}
+
 	//다음스테이지로 넘어가는 버튼함수 20230506
 	public void NextStage()
 	{
@@ -184,6 +205,18 @@ public class SceneControl : MonoBehaviour
 		Debug.Log("게임종료");
 		Application.Quit();
 	}
+
+	public void GoTitle()
+	{
+		SceneManager.LoadScene("TitleScene");
+		sceneNumber = 1;
+	}
+
+	public void Retry()
+	{
+		SceneManager.LoadScene(sceneNumber);
+	}
+
 
 	//현재 시간을 표현하는 함수 20230506
 	public void timeText()

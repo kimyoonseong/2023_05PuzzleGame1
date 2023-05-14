@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/mainstage2.unity
     guid: b04729b4849fa054d8fdf4677b1d9543
+  - enabled: 1
+    path: Assets/mainstage3.unity
+    guid: 95d6b1f652126e047b0829c5648d1c10
   m_configObjects: {}

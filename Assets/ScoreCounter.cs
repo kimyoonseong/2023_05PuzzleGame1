@@ -28,10 +28,22 @@ public class ScoreCounter : MonoBehaviour
 		this.last.total_socre = 0;
 		this.guistyle.fontSize = 36;
 		//
-		if (stagenum.NowStage() >= 1)			//현재 스테이지를 확인하고 현재스테이지에따라 stagenum을 다르게하여 레벨디자인구현
+		if (stagenum.NowStage() == 1)			//현재 스테이지를 확인하고 현재스테이지에따라 stagenum을 다르게하여 레벨디자인구현
 		{
 			Debug.Log(stagenum.NowStage());
-			this.last.cur_score = 20 * stagenum.stagenum;
+			this.last.cur_score = 50;
+		}
+
+		if (stagenum.NowStage() == 2)           //현재 스테이지를 확인하고 현재스테이지에따라 stagenum을 다르게하여 레벨디자인구현
+		{
+			Debug.Log(stagenum.NowStage());
+			this.last.cur_score = 55;
+		}
+
+		if (stagenum.NowStage() == 3)           //현재 스테이지를 확인하고 현재스테이지에따라 stagenum을 다르게하여 레벨디자인구현
+		{
+			Debug.Log(stagenum.NowStage());
+			this.last.cur_score = 60;
 		}
 
 		this.last.combo = 0;
