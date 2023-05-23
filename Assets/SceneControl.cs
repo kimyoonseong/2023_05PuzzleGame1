@@ -55,16 +55,16 @@ public class SceneControl : MonoBehaviour
 
 		if(sceneNumber == 1)
 		{
-			Stage1_RemainTime = 90.0f;
+			Stage1_RemainTime = 100.0f;
 		}
 
 		else if (sceneNumber == 2)
 		{
-			Stage1_RemainTime = 80.0f;
+			Stage1_RemainTime = 100.0f;
 		}
 		else if (sceneNumber == 3)
 		{
-			Stage1_RemainTime = 70.0f;
+			Stage1_RemainTime = 90.0f;
 		}
 
 		stagenum = sceneNumber;

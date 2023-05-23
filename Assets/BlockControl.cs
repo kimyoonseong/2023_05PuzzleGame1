@@ -68,7 +68,9 @@ public class Block
 
 public class BlockControl : MonoBehaviour
 {
-
+	public GameObject Bomb; //20230521 4매치 폭탄 
+	public GameObject Match5; //20230521 4매치 폭탄
+	public GameObject FeverBomb; //20230521 4매치 폭탄
 	public Block.COLOR color = (Block.COLOR)0; // 블록 색.
 	public Block.COLOR pop5Color = (Block.COLOR)(-1); //20230510 5매치 블록색저장 클래스.
 	
@@ -234,7 +236,7 @@ public class BlockControl : MonoBehaviour
 				break;
 			case Block.STEP.FALL:
 				// 속도에 중력의 영향을 준다.
-				this.fall.velocity += Physics.gravity.y * Time.deltaTime * 0.3f;
+				this.fall.velocity += Physics.gravity.y * Time.deltaTime * 0.7f;
 				// 세로 방향 위치를 계산.
 				this.position_offset.y += this.fall.velocity * Time.deltaTime;
 				if (this.position_offset.y < 0.0f)
@@ -294,32 +296,68 @@ public class BlockControl : MonoBehaviour
 			default:
 			case Block.COLOR.PINK:
 				color_value = new Color(1.0f, 0.5f, 0.5f);
+				Bomb.SetActive(false);
+				Match5.SetActive(false);
+				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.BLUE:
+				
 				color_value = Color.blue;
+				Bomb.SetActive(false);
+				Match5.SetActive(false);
+				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.YELLOW:
 				color_value = Color.yellow;
+
+				Bomb.SetActive(false);
+				Match5.SetActive(false);
+				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.GREEN:
 				color_value = Color.green;
+				Bomb.SetActive(false);
+				Match5.SetActive(false);
+				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.MAGENTA:
 				color_value = Color.magenta;
+				Bomb.SetActive(false);
+				Match5.SetActive(false);
+				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.ORANGE:
 				color_value = new Color(1.0f, 0.46f, 0.0f);
+				Bomb.SetActive(false);
+				Match5.SetActive(false);
+				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.Bomb://2023 0510 bomb 컬러 추가
+				GetComponent<MeshRenderer>().enabled = false;
+				//Match5.SetActive(false);
+				//FeverBomb.SetActive(false);
+				Bomb.SetActive(true);
 				color_value = Color.red;
 				break;
 			case Block.COLOR.POP5://2023 0510 bomb 컬러 추가
+				GetComponent<MeshRenderer>().enabled = false;
 				color_value = Color.white;
+				//Bomb.SetActive(false);
+				//FeverBomb.SetActive(false);
+				Match5.SetActive(true);
 				break;
 			case Block.COLOR.Obstacle://2023 0510 bomb 컬러 추가
+
 				color_value = Color.black;
+				Bomb.SetActive(false);
+				FeverBomb.SetActive(false);
+				Match5.SetActive(false);
 				break;
 			case Block.COLOR.FeverItem://20230511 FEVER BOMB추가
+				GetComponent<MeshRenderer>().enabled = false;
+				//Bomb.SetActive(false);
+				FeverBomb.SetActive(true);
+				//Match5.SetActive(false);
 				color_value = new Color(0.7f, 0.3f, 1.0f);
 				break;
 			case Block.COLOR.Wall://20230511 투명벽 추가

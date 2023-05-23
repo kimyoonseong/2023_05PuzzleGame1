@@ -3,14 +3,21 @@ using System.Collections;
 
 public class ScoreCounter : MonoBehaviour
 {
-
+	public Block blockenum;
 	public struct Count
 	{ // 점수 관리용 구조체.
 		public int ignite; // 연쇄 수.
 		public int score; // 점수.
 		public int total_socre; // 합계 점수.
 		public int cur_score; //현재 남은 보석 갯수 //20230504 추가
-		public int combo; //현재 연속 콤보 수 //20230504 추가          은직 여기가 이제 콤보띄우는 변수
+		public int combo; //현재 연속 콤보 수 //20230504 추가
+		public int pink;
+		public int blue;
+		public int yellow;
+		public int green;	//삭제할 색상들추가 //20230523
+		public int magenta;
+		public int orange;
+		
 	};
 	public Count last; // 마지막(이번) 점수.
 	public Count best; // 최고 점수.
@@ -27,23 +34,46 @@ public class ScoreCounter : MonoBehaviour
 		this.last.score = 0;
 		this.last.total_socre = 0;
 		this.guistyle.fontSize = 36;
+		this.last.pink = 0;
+		this.last.blue = 0;
+		this.last.green = 0;
+		this.last.magenta = 0;
+		this.last.orange = 0;
 		//
 		if (stagenum.NowStage() == 1)			//현재 스테이지를 확인하고 현재스테이지에따라 stagenum을 다르게하여 레벨디자인구현
 		{
 			Debug.Log(stagenum.NowStage());
-			this.last.cur_score = 50;
+			//this.last.cur_score = 40;
+			this.last.pink = Random.Range(10, 25);
+			this.last.blue = Random.Range(10, 25);
+			this.last.yellow = Random.Range(10, 25);
+			this.last.green = Random.Range(10, 25);
+			this.last.magenta = Random.Range(10, 25);
+			this.last.orange = Random.Range(10, 25); 
 		}
 
 		if (stagenum.NowStage() == 2)           //현재 스테이지를 확인하고 현재스테이지에따라 stagenum을 다르게하여 레벨디자인구현
 		{
 			Debug.Log(stagenum.NowStage());
-			this.last.cur_score = 55;
+			this.last.pink = Random.Range(15, 30);
+			this.last.blue = Random.Range(15, 30);
+			this.last.yellow = Random.Range(15, 30);
+			this.last.green = Random.Range(15, 30);
+			this.last.magenta = Random.Range(15, 30);
+			this.last.orange = Random.Range(15, 30);
+			//this.last.cur_score = 45;
 		}
 
 		if (stagenum.NowStage() == 3)           //현재 스테이지를 확인하고 현재스테이지에따라 stagenum을 다르게하여 레벨디자인구현
 		{
 			Debug.Log(stagenum.NowStage());
-			this.last.cur_score = 60;
+			this.last.pink = Random.Range(15, 30);
+			this.last.blue = Random.Range(15, 30);
+			this.last.yellow = Random.Range(15, 30);
+			this.last.green = Random.Range(15, 30);
+			this.last.magenta = Random.Range(15, 30);
+			this.last.orange = Random.Range(15, 30);
+			//this.last.cur_score = 50;
 		}
 
 		this.last.combo = 0;
@@ -60,10 +90,24 @@ public class ScoreCounter : MonoBehaviour
 		//y += 50;
 		//this.print_value(x + 20, y, "합계 스코어", this.last.total_socre);          //20230504 필요없는 스코어 삭제
 		//y += 50;
-		this.print_value(x + 20, y, "남은 보석 갯수", this.last.cur_score);
+		//this.print_value(x + 20, y, "남은 보석 갯수", this.last.cur_score);
+		//y += 80;
+		
+		this.print_value(x + 1200, y, "연속콤보 수", this.last.combo);
+		y += 160;
+		this.print_value(x + 20, y, "남은 핑크색 보석", this.last.pink);
 		y += 80;
-		this.print_value(x + 20, y, "연속콤보 수", this.last.combo);
+		this.print_value(x + 20, y, "남은 노란색 보석", this.last.yellow);
 		y += 80;
+		this.print_value(x + 20, y, "남은 파랑색 보석", this.last.blue);
+		y += 80;
+		this.print_value(x + 20, y, "남은 초록색 보석", this.last.green);
+		y += 80;
+		this.print_value(x + 20, y, "남은 마젠타색 보석", this.last.magenta);
+		y += 80;
+		this.print_value(x + 20, y, "남은 오랜지색 보석", this.last.orange);
+		y += 80;
+		
 	}
 	public void print_value(int x, int y, string label, int value)
 	{
@@ -95,6 +139,60 @@ public class ScoreCounter : MonoBehaviour
     {
 		this.last.cur_score -= count;
 	}
+	public void ColorDiffCheck(Block.COLOR C) // 20230523 보석 색상에 따른 차감 함수
+    {
+		if (C == Block.COLOR.PINK)//5매치가 핑크색이면 핑크색 차감
+		{
+			this.last.pink -= 1;
+            if (this.last.pink <= 0)
+            {
+				this.last.pink = 0;
+			}
+		}
+		else if (C== Block.COLOR.BLUE)
+		{
+			this.last.blue -= 1;
+			if (this.last.blue <= 0)
+			{
+				this.last.blue = 0;
+			}
+		}
+		else if (C == Block.COLOR.YELLOW)
+		{
+			this.last.yellow -= 1;
+			if (this.last.yellow <= 0)
+			{
+				this.last.yellow = 0;
+			}
+		}
+		else if (C == Block.COLOR.GREEN)
+		{
+			this.last.green -= 1;
+			if (this.last.green <= 0)
+			{
+				this.last.green= 0;
+			}
+			//Debug.Log("실행수");
+		}
+		else if (C == Block.COLOR.MAGENTA)
+		{
+			this.last.magenta -= 1;
+			if (this.last.magenta <= 0)
+			{
+				this.last.magenta = 0;
+			}
+		}
+		else if (C == Block.COLOR.ORANGE)
+		{
+			this.last.orange -= 1;
+			if (this.last.orange <= 0)
+			{
+				this.last.orange = 0;
+			}
+		}
+ 
+		
+	}
 	public void ComboCount(int count, bool state)// 20230504 연속으로 맞춘 콤보 함수       
 	{
 		if (state == true)
@@ -113,15 +211,16 @@ public class ScoreCounter : MonoBehaviour
 	public bool isGameClear()
 	{
 		bool is_clear = false;
-		// 현재 합계 스코어가 클리어 기준보다 크다면. <---기존 성공조건 삭제 20230503
-		//if (this.last.total_socre > QUOTA_SCORE)
-		//{
-		//	is_clear = true;
-		//}
-        if (this.last.cur_score <= CLEAR_SCORE)
+		
+   //     if (this.last.cur_score <= CLEAR_SCORE)//20230523 점수기준 변경
+   //     {
+			//is_clear = true;
+   //     }
+		if(this.last.pink==0 && this.last.blue == 0 && this.last.yellow == 0 && this.last.green == 0 && this.last.magenta == 0 &&
+			this.last.orange == 0)
         {
 			is_clear = true;
-        }
+		}
 		return (is_clear);
 	}
 	

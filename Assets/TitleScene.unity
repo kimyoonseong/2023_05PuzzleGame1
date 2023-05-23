@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: e476f922c92f2ec44b18dd0881552e9d, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -244,7 +244,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -231.1}
+  m_AnchoredPosition: {x: 0, y: -314.7}
   m_SizeDelta: {x: 176.7, y: 49.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &189507893
@@ -644,7 +644,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 906.09, y: 660}
+  m_SizeDelta: {x: 1007.45, y: 787.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1043505774
 GameObject:
@@ -815,7 +815,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -196.2, y: 173.68}
+  m_AnchoredPosition: {x: -196.2, y: 256.21}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1150905187
@@ -831,7 +831,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -853,8 +853,15 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: "\uC81C\uC791\uC790: B877006\uAE40\uC724\uC131, B877007\uAE40\uC740\uC9C1\n\n\uC870\uC791\uBC95:
     \uB9C8\uC6B0\uC2A4 \uB4DC\uB798\uADF8\n\n\uD574\uC0C1\uB3C4: 1600X900\n\n\uBAA9\uD45C:
-    \uAC19\uC740\uC0C9\uC758 \uBCF4\uC11D\uC744 3\uAC1C \uC774\uC0C1 \uB9E4\uCE58\uD558\uC5EC
-    \uBCF4\uC11D\uC744 \uCC44\uAD74\uD558\uC790 "
+    \uAC19\uC740\uC0C9\uC758 \uBCF4\uC11D\uC744 3\uAC1C \uC774\uC0C1  \uB9E4\uCE58\uD558\uC5EC
+    \uBCF4\uC11D\uC744 \uCC44\uAD74\uD558\uC790\n \t   \t (\uB9E4\uCE58 \uC2E4\uD328\uC2DC
+    \uBC29\uD574 \uBE14\uB85D\uC774 \uC0DD\uC131\uB418\uB2C8 \uC870\uC2EC!)\t\n\t\n\t\t\t\t\t\t\t\t\t\uC544\uC774\uD15C\n\n4\uB9E4\uCE58
+    \uC2DC \uD589\uC5F4 \uBAA8\uB450 \uD130\uD2B8\uB9AC\uB294 \uC2ED\uC790\uAC00
+    \uD3ED\uD0C4 \uC0DD\uC131\n\n5\uB9E4\uCE58 \uC2DC \uD574\uB2F9 \uC0C9\uC0C1\uC744
+    \uBAA8\uB450 \uD130\uD2B8\uB9AC\uB294 \uCCAD\uB85D \uAD6C\uC2AC\uD3ED\uD0C4 \uC0DD\uC131\n\n7\uBC88
+    \uC5F0\uC18D \uB9DE\uCD9C \uB54C \uB9C8\uB2E4 \uBE68\uAC04 \uD3ED\uD0C4\uC744
+    \uC0DD\uC131\uD558\uB294 \uD53C\uBC84\uBAA8\uB4DC \uBC1C\uB3D9 \n\n(\uC544\uC774\uD15C\uC740
+    \uD074\uB9AD\uD558\uC5EC \uBC1C\uB3D9!)\n\n\n"
 --- !u!222 &1150905188
 CanvasRenderer:
   m_ObjectHideFlags: 0
