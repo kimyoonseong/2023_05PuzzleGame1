@@ -69,6 +69,10 @@ public class BlockRoot : MonoBehaviour
 								{
 
 									this.blocks[x, block.i_pos.y].toVanishing();
+									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
+									{
+										continue;//
+									}
 									score_counter.ColorDiffCheck(blocks[x, block.i_pos.y].color);
 								}
 							}
@@ -77,6 +81,10 @@ public class BlockRoot : MonoBehaviour
 								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
 								{
 									this.blocks[block.i_pos.x, y].toVanishing();
+									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
+									{
+										continue;//
+									}
 									score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
 									//Debug.Log(blocks[block.i_pos.x, y].color);
 								}
@@ -88,6 +96,10 @@ public class BlockRoot : MonoBehaviour
 								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
 								{
 									this.blocks[block.i_pos.x, y].toVanishing();
+									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
+									{
+										continue;//
+									}
 									score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
 									//Debug.Log(blocks[block.i_pos.x, y].color);
 								}
@@ -109,6 +121,10 @@ public class BlockRoot : MonoBehaviour
 									//Debug.Log(block.pop5Color);
 									
 									block2.toVanishing();
+									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
+									{
+										continue;//
+									}
 									score_counter.ColorDiffCheck(block.pop5Color);
                                     //if (block.pop5Color == Block.COLOR.PINK)//5매치가 핑크색이면 핑크색 차감
                                     //{
@@ -134,10 +150,7 @@ public class BlockRoot : MonoBehaviour
                                 }
 							}
 							this.blocks[block.i_pos.x, block.i_pos.y].toVanishing();
-							if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
-							{
-								continue;//
-							}
+							
 							this.score_counter.DiffBlockCount(3);
 							
 						}
@@ -155,9 +168,15 @@ public class BlockRoot : MonoBehaviour
                                             {
 												if (blocks[block.i_pos.x + i, block.i_pos.y + j].color != Block.COLOR.Wall)
 												{
-													score_counter.ColorDiffCheck(blocks[block.i_pos.x + i, block.i_pos.y + j].color);
 													this.blocks[block.i_pos.x + i, block.i_pos.y + j].toVanishing();
-													//Debug.Log(this.blocks[block.i_pos.x + i, block.i_pos.y + j]);
+													if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
+													{
+														continue;//
+													}
+													score_counter.ColorDiffCheck(blocks[block.i_pos.x + i, block.i_pos.y + j].color);
+													
+													
+												//Debug.Log(this.blocks[block.i_pos.x + i, block.i_pos.y + j]);
 												}
 												
 											}											
