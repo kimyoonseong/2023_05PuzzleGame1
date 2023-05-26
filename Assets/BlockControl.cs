@@ -85,7 +85,7 @@ public class BlockControl : MonoBehaviour
 
 	public float vanish_timer = -1.0f; // 블록이 사라질 때까지의 시간.
 	public Block.DIR4 slide_dir = Block.DIR4.NONE; // 슬라이드된 방향.
-	public float step_timer = 0.0f; // 블록이 교체된 때의 이동 시간 등.
+	public float step_timer = 1.0f; // 블록이 교체된 때의 이동 시간 등.
 
 	// 10-------.
 	public Material opaque_material; // 불투명용 재질.

@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class TitleUI : MonoBehaviour
 {
     public GameObject Panel;
+
     public void StartButton()
     {
         SceneManager.LoadScene("mainstage1");
@@ -19,4 +20,5 @@ public class TitleUI : MonoBehaviour
     {
         Panel.SetActive(false);
     }
+
 }

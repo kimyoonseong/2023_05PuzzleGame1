@@ -25,7 +25,10 @@ public class ScoreCounter : MonoBehaviour
 	public static int QUOTA_SCORE = 1000; // 클리어에 필요한 점수.
 	public GUIStyle guistyle; // 폰트 스타일.
 
-	public SceneControl stagenum;		//scenecontrol에 현재 stage를 확인할수있는 scenenumber를 가져오기위한 변수 20230506
+	public SceneControl stagenum;       //scenecontrol에 현재 stage를 확인할수있는 scenenumber를 가져오기위한 변수 20230506
+	private AudioSource WinSoundSource;
+	public AudioClip WinSound;
+
 
 	void Start()
 	{
@@ -39,6 +42,9 @@ public class ScoreCounter : MonoBehaviour
 		this.last.green = 0;
 		this.last.magenta = 0;
 		this.last.orange = 0;
+
+		this.WinSoundSource = this.gameObject.AddComponent<AudioSource>();
+
 		//
 		if (stagenum.NowStage() == 1)			//현재 스테이지를 확인하고 현재스테이지에따라 stagenum을 다르게하여 레벨디자인구현
 		{
@@ -211,14 +217,17 @@ public class ScoreCounter : MonoBehaviour
 	public bool isGameClear()
 	{
 		bool is_clear = false;
-		
-   //     if (this.last.cur_score <= CLEAR_SCORE)//20230523 점수기준 변경
-   //     {
-			//is_clear = true;
-   //     }
-		if(this.last.pink==0 && this.last.blue == 0 && this.last.yellow == 0 && this.last.green == 0 && this.last.magenta == 0 &&
+
+		//     if (this.last.cur_score <= CLEAR_SCORE)//20230523 점수기준 변경
+		//     {
+		//is_clear = true;
+		//     }
+
+
+		if (this.last.pink==0 && this.last.blue == 0 && this.last.yellow == 0 && this.last.green == 0 && this.last.magenta == 0 &&
 			this.last.orange == 0)
         {
+			WinSoundSource.PlayOneShot(WinSound);
 			is_clear = true;
 		}
 		return (is_clear);

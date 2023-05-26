@@ -4,72 +4,101 @@ using System.Collections;
 public class BlockRoot : MonoBehaviour
 {
 	
-	//public GameObject BombPrefab = null;//4¸ÅÄ¡ ÆøÅº ºí·Ï
-	public GameObject BlockPrefab = null; // ¸¸µé¾î ³¾ ºí·ÏÀÇ ÇÁ¸®ÆÕ.
-	public BlockControl[,] blocks; // ±×¸®µå.
+	//public GameObject BombPrefab = null;//4ë§¤ì¹˜ í­íƒ„ ë¸”ë¡
+	public GameObject BlockPrefab = null; // ë§Œë“¤ì–´ ë‚¼ ë¸”ë¡ì˜ í”„ë¦¬íŒ¹.
+	public BlockControl[,] blocks; // ê·¸ë¦¬ë“œ.
 
-	private GameObject main_camera = null; // ¸ŞÀÎ Ä«¸Ş¶ó.
-	private BlockControl grabbed_block = null; // ÀâÀº ºí·Ï.
+	private GameObject main_camera = null; // ë©”ì¸ ì¹´ë©”ë¼.
+	private BlockControl grabbed_block = null; // ì¡ì€ ë¸”ë¡.
 
 	private ScoreCounter score_counter = null; // ScoreCounter.
-	protected bool is_vanishing_prev = false; // ÀÌÀü¿¡ ¹ßÈ­Çß¾ú´Â°¡?.
+	protected bool is_vanishing_prev = false; // ì´ì „ì— ë°œí™”í–ˆì—ˆëŠ”ê°€?.
 
-	public TextAsset levelData = null; // ·¹º§ µ¥ÀÌÅÍÀÇ ÅØ½ºÆ®¸¦ ÀúÀå.
-	public LevelControl level_control; // LevelControl¸¦ ÀúÀå.
+	public TextAsset levelData = null; // ë ˆë²¨ ë°ì´í„°ì˜ í…ìŠ¤íŠ¸ë¥¼ ì €ì¥.
+	public LevelControl level_control; // LevelControlë¥¼ ì €ì¥.
 
+	private bool check1 = true;
 
-	//classº¯¼öÃß°¡
+	//classë³€ìˆ˜ì¶”ê°€
 	private SceneControl stagenum;
+
+
+	private AudioSource BlockChangeaudio;
+	public AudioClip BlockChangeSound;
+	public AudioClip Bomb4sound;
+	public AudioClip Bomb5sound;
+	public AudioClip CollectSound;
+	public AudioClip FeverSound;
 
 	void Start()
 	{
 		this.main_camera = GameObject.FindGameObjectWithTag("MainCamera");
 		this.score_counter = this.gameObject.GetComponent<ScoreCounter>();
-		//startºÎºĞ ÂüÁ¶ Ãß°¡
+		//startë¶€ë¶„ ì°¸ì¡° ì¶”ê°€
 		stagenum = GameObject.Find("GameRoot").GetComponent<SceneControl>();
+
+		this.BlockChangeaudio = this.gameObject.AddComponent<AudioSource>();
+
+
 	}
 
 
 	void Update()
 	{
-		Vector3 mouse_position; // ¸¶¿ì½º À§Ä¡.
-		this.unprojectMousePosition( // ¸¶¿ì½º À§Ä¡¸¦ È¹µæ.
+		Vector3 mouse_position; // ë§ˆìš°ìŠ¤ ìœ„ì¹˜.
+		this.unprojectMousePosition( // ë§ˆìš°ìŠ¤ ìœ„ì¹˜ë¥¼ íšë“.
 									out mouse_position, Input.mousePosition);
-		// È¹µæÇÑ ¸¶¿ì½º À§Ä¡¸¦ X¿Í Y¸¸À¸·Î ÇÑ´Ù.
+		// íšë“í•œ ë§ˆìš°ìŠ¤ ìœ„ì¹˜ë¥¼ Xì™€ Yë§Œìœ¼ë¡œ í•œë‹¤.
 		Vector2 mouse_position_xy =
 			new Vector2(mouse_position.x, mouse_position.y);
+
+		if (check1)
+		{
+			foreach (BlockControl block in this.blocks)
+			{
+				if (this.CheckStartBlock(block))
+				{
+					block.color = this.selectBlockColor();
+				}
+			}
+		}
+
+		check1 = false;
+
 		if (this.grabbed_block == null)
-		{ // ºí·ÏÀ» ÀâÁö ¾Ê¾ÒÀ» ¶§.
+		{ // ë¸”ë¡ì„ ì¡ì§€ ì•Šì•˜ì„ ë•Œ.
 			if (!this.is_has_falling_block())
 			{
 				if (Input.GetMouseButtonDown(0))
-				{ // ¸¶¿ì½º ¹öÆ°ÀÌ ´­·È´Ù¸é.
-				  // blocks ¹è¿­ÀÇ ¸ğµç ¿ä¼Ò¸¦ Â÷·Ê·Î Ã³¸®ÇÑ´Ù.
+				{ // ë§ˆìš°ìŠ¤ ë²„íŠ¼ì´ ëˆŒë ¸ë‹¤ë©´.
+				  // blocks ë°°ì—´ì˜ ëª¨ë“  ìš”ì†Œë¥¼ ì°¨ë¡€ë¡œ ì²˜ë¦¬í•œë‹¤.
 
 					foreach (BlockControl block in this.blocks)
 					{
 						if (!block.isGrabbable())
-						{ // ºí·ÏÀ» ÀâÀ» ¼ö ¾øÀ¸¸é.
-							continue; // ´ÙÀ½ ºí·ÏÀ¸·Î.
+						{ // ë¸”ë¡ì„ ì¡ì„ ìˆ˜ ì—†ìœ¼ë©´.
+							continue; // ë‹¤ìŒ ë¸”ë¡ìœ¼ë¡œ.
 						}
-						// ¸¶¿ì½º À§Ä¡°¡ ºí·Ï ¿µ¿ª ¾È¿¡ ¾øÀ¸¸é.
+						// ë§ˆìš°ìŠ¤ ìœ„ì¹˜ê°€ ë¸”ë¡ ì˜ì—­ ì•ˆì— ì—†ìœ¼ë©´.
 						if (!block.isContainedPosition(mouse_position_xy))
 						{
-							continue; // ´ÙÀ½ ºí·ÏÀ¸·Î.
+							continue; // ë‹¤ìŒ ë¸”ë¡ìœ¼ë¡œ.
 						}
 						
 						//Debug.Log(block.pop5Color);
-						if (block.color == Block.COLOR.Bomb)//20230510 4¸ÅÄ¡ÆøÅº ´­·ÈÀ»¶§
+						if (block.color == Block.COLOR.Bomb)//20230510 4ë§¤ì¹˜í­íƒ„ ëˆŒë ¸ì„ë•Œ
 						{
 							Debug.Log(block.step);
-							
+							this.BlockChangeaudio.clip = this.Bomb4sound;
+							this.BlockChangeaudio.loop = false;
+							BlockChangeaudio.PlayOneShot(Bomb4sound);
 							for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 							{
 								if (blocks[x, block.i_pos.y].color != Block.COLOR.Wall)
 								{
 
 									this.blocks[x, block.i_pos.y].toVanishing();
-									if (block.step == Block.STEP.IDLE)//¹ßÈ­Áß¿¡ ´©¸£¸é °è¼Ó Á¡¼ö Ä«¿îÆ® µÇ´Â°Å ¼öÁ¤
+									if (block.step == Block.STEP.IDLE)//ë°œí™”ì¤‘ì— ëˆ„ë¥´ë©´ ê³„ì† ì ìˆ˜ ì¹´ìš´íŠ¸ ë˜ëŠ”ê±° ìˆ˜ì •
 									{
 										continue;//
 									}
@@ -81,7 +110,7 @@ public class BlockRoot : MonoBehaviour
 								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
 								{
 									this.blocks[block.i_pos.x, y].toVanishing();
-									if (block.step == Block.STEP.IDLE)//¹ßÈ­Áß¿¡ ´©¸£¸é °è¼Ó Á¡¼ö Ä«¿îÆ® µÇ´Â°Å ¼öÁ¤
+									if (block.step == Block.STEP.IDLE)//ë°œí™”ì¤‘ì— ëˆ„ë¥´ë©´ ê³„ì† ì ìˆ˜ ì¹´ìš´íŠ¸ ë˜ëŠ”ê±° ìˆ˜ì •
 									{
 										continue;//
 									}
@@ -96,7 +125,7 @@ public class BlockRoot : MonoBehaviour
 								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
 								{
 									this.blocks[block.i_pos.x, y].toVanishing();
-									if (block.step == Block.STEP.IDLE)//¹ßÈ­Áß¿¡ ´©¸£¸é °è¼Ó Á¡¼ö Ä«¿îÆ® µÇ´Â°Å ¼öÁ¤
+									if (block.step == Block.STEP.IDLE)//ë°œí™”ì¤‘ì— ëˆ„ë¥´ë©´ ê³„ì† ì ìˆ˜ ì¹´ìš´íŠ¸ ë˜ëŠ”ê±° ìˆ˜ì •
 									{
 										continue;//
 									}
@@ -104,16 +133,19 @@ public class BlockRoot : MonoBehaviour
 									//Debug.Log(blocks[block.i_pos.x, y].color);
 								}
 							}
-							if (block.step == Block.STEP.IDLE)//¹ßÈ­Áß¿¡ ´©¸£¸é °è¼Ó Á¡¼ö Ä«¿îÆ® µÇ´Â°Å ¼öÁ¤
+							if (block.step == Block.STEP.IDLE)//ë°œí™”ì¤‘ì— ëˆ„ë¥´ë©´ ê³„ì† ì ìˆ˜ ì¹´ìš´íŠ¸ ë˜ëŠ”ê±° ìˆ˜ì •
 							{
 								continue;//
 							}
-							this.score_counter.DiffBlockCount(2);//20230511Á¡¼öÄ«¿îÆ®
+							this.score_counter.DiffBlockCount(2);//20230511ì ìˆ˜ì¹´ìš´íŠ¸
 							
 						}
-						else if(block.color == Block.COLOR.POP5)//20230510 5¸ÅÄ¡ÆøÅº ´­·ÈÀ»¶§
+						else if(block.color == Block.COLOR.POP5)//20230510 5ë§¤ì¹˜í­íƒ„ ëˆŒë ¸ì„ë•Œ
                         {
 							Debug.Log(block.pop5Color);
+							this.BlockChangeaudio.clip = this.Bomb5sound;
+							this.BlockChangeaudio.loop = false;
+							BlockChangeaudio.PlayOneShot(Bomb5sound);
 							foreach (BlockControl block2 in this.blocks)
                             {
 								if (block.pop5Color == block2.color)
@@ -121,12 +153,12 @@ public class BlockRoot : MonoBehaviour
 									//Debug.Log(block.pop5Color);
 									
 									block2.toVanishing();
-									if (block.step == Block.STEP.IDLE)//¹ßÈ­Áß¿¡ ´©¸£¸é °è¼Ó Á¡¼ö Ä«¿îÆ® µÇ´Â°Å ¼öÁ¤
+									if (block.step == Block.STEP.IDLE)//ë°œí™”ì¤‘ì— ëˆ„ë¥´ë©´ ê³„ì† ì ìˆ˜ ì¹´ìš´íŠ¸ ë˜ëŠ”ê±° ìˆ˜ì •
 									{
 										continue;//
 									}
 									score_counter.ColorDiffCheck(block.pop5Color);
-                                    //if (block.pop5Color == Block.COLOR.PINK)//5¸ÅÄ¡°¡ ÇÎÅ©»öÀÌ¸é ÇÎÅ©»ö Â÷°¨
+                                    //if (block.pop5Color == Block.COLOR.PINK)//5ë§¤ì¹˜ê°€ í•‘í¬ìƒ‰ì´ë©´ í•‘í¬ìƒ‰ ì°¨ê°
                                     //{
                                     //    score_counter.last.pink -= 1;
                                     //}
@@ -137,7 +169,7 @@ public class BlockRoot : MonoBehaviour
                                     //else if (block.pop5Color == Block.COLOR.GREEN)
                                     //{
                                     //    score_counter.last.green -= 1;
-                                    //    Debug.Log("½ÇÇà¼ö");
+                                    //    Debug.Log("ì‹¤í–‰ìˆ˜");
                                     //}
                                     //else if (block.pop5Color == Block.COLOR.MAGENTA)
                                     //{
@@ -154,7 +186,7 @@ public class BlockRoot : MonoBehaviour
 							this.score_counter.DiffBlockCount(3);
 							
 						}
-						else if (block.color == Block.COLOR.FeverItem)//20230511 ÇÇ¹ö¸ğµå ¾ÆÀÌÅÛ
+						else if (block.color == Block.COLOR.FeverItem)//20230511 í”¼ë²„ëª¨ë“œ ì•„ì´í…œ
                         {
 							
 							for(int i = -1; i < 2; i++)
@@ -169,7 +201,7 @@ public class BlockRoot : MonoBehaviour
 												if (blocks[block.i_pos.x + i, block.i_pos.y + j].color != Block.COLOR.Wall)
 												{
 													this.blocks[block.i_pos.x + i, block.i_pos.y + j].toVanishing();
-													if (block.step == Block.STEP.IDLE)//¹ßÈ­Áß¿¡ ´©¸£¸é °è¼Ó Á¡¼ö Ä«¿îÆ® µÇ´Â°Å ¼öÁ¤
+													if (block.step == Block.STEP.IDLE)//ë°œí™”ì¤‘ì— ëˆ„ë¥´ë©´ ê³„ì† ì ìˆ˜ ì¹´ìš´íŠ¸ ë˜ëŠ”ê±° ìˆ˜ì •
 													{
 														continue;//
 													}
@@ -184,15 +216,15 @@ public class BlockRoot : MonoBehaviour
 									
 								}
                             }
-							if (block.step == Block.STEP.IDLE)//¹ßÈ­Áß¿¡ ´©¸£¸é °è¼Ó Á¡¼ö Ä«¿îÆ® µÇ´Â°Å ¼öÁ¤
+							if (block.step == Block.STEP.IDLE)//ë°œí™”ì¤‘ì— ëˆ„ë¥´ë©´ ê³„ì† ì ìˆ˜ ì¹´ìš´íŠ¸ ë˜ëŠ”ê±° ìˆ˜ì •
 							{
 								continue;//
 							}
-							this.score_counter.DiffBlockCount(3);//20230511Á¡¼öÄ«¿îÆ®
+							this.score_counter.DiffBlockCount(3);//20230511ì ìˆ˜ì¹´ìš´íŠ¸
 						}
-						// Ã³¸® ÁßÀÎ ºí·ÏÀ» grabbed_block¿¡ µî·Ï.
+						// ì²˜ë¦¬ ì¤‘ì¸ ë¸”ë¡ì„ grabbed_blockì— ë“±ë¡.
 						this.grabbed_block = block;
-						// Àâ¾ÒÀ» ¶§ÀÇ Ã³¸®¸¦ ½ÇÇà.
+						// ì¡ì•˜ì„ ë•Œì˜ ì²˜ë¦¬ë¥¼ ì‹¤í–‰.
 						if (this.grabbed_block.color == Block.COLOR.Obstacle)
 						{
 							grabbed_block = null;
@@ -207,31 +239,33 @@ public class BlockRoot : MonoBehaviour
 			}
 		}
 		else
-		{ // ºí·ÏÀ» Àâ°í ÀÖÀ» ¶§.
+		{ // ë¸”ë¡ì„ ì¡ê³  ìˆì„ ë•Œ.
 
 
 			do
 			{
-				// ½½¶óÀÌµåÇÒ °÷ÀÇ ºí·ÏÀ» °¡Á®¿Â´Ù.
+				// ìŠ¬ë¼ì´ë“œí•  ê³³ì˜ ë¸”ë¡ì„ ê°€ì ¸ì˜¨ë‹¤.
 				BlockControl swap_target =
 					this.getNextBlock(grabbed_block, grabbed_block.slide_dir);
-				// ½½¶óÀÌµåÇÒ °÷ ºí·ÏÀÌ ºñ¾î ÀÖ´Ù¸é.
+
+
+				// ìŠ¬ë¼ì´ë“œí•  ê³³ ë¸”ë¡ì´ ë¹„ì–´ ìˆë‹¤ë©´.
 				if (swap_target == null)
 				{
-					break; // ·çÇÁ Å»Ãâ. 
+					break; // ë£¨í”„ íƒˆì¶œ. 
 				}
-				// ½½¶óÀÌµåÇÒ °÷ ºí·ÏÀ» ÀâÀ» ¼ö ÀÖ´Â »óÅÂ°¡ ¾Æ´Ï¶ó¸é.
+				// ìŠ¬ë¼ì´ë“œí•  ê³³ ë¸”ë¡ì„ ì¡ì„ ìˆ˜ ìˆëŠ” ìƒíƒœê°€ ì•„ë‹ˆë¼ë©´.
 				if (!swap_target.isGrabbable())
 				{
-					break; // ·çÇÁ Å»Ãâ. 
+					break; // ë£¨í”„ íƒˆì¶œ. 
 				}
-				//  ÇöÀç À§Ä¡¿¡¼­ ½½¶óÀÌµåÇÒ °÷±îÁöÀÇ °Å¸®¸¦ ±¸ÇÑ´Ù.
+				//  í˜„ì¬ ìœ„ì¹˜ì—ì„œ ìŠ¬ë¼ì´ë“œí•  ê³³ê¹Œì§€ì˜ ê±°ë¦¬ë¥¼ êµ¬í•œë‹¤.
 				float offset = this.grabbed_block.calcDirOffset(
 					mouse_position_xy, this.grabbed_block.slide_dir);
-				// ÀÌµ¿ °Å¸®°¡ ºí·Ï Å©±âÀÇ Àı¹İº¸´Ù ÀÛ´Ù¸é .
+				// ì´ë™ ê±°ë¦¬ê°€ ë¸”ë¡ í¬ê¸°ì˜ ì ˆë°˜ë³´ë‹¤ ì‘ë‹¤ë©´ .
 				if (offset < Block.COLLISION_SIZE / 2.0f)
 				{
-					break; // ·çÇÁ Å»Ãâ. 
+					break; // ë£¨í”„ íƒˆì¶œ. 
 				}
 
 				//if (!this.checkConnection(this.grabbed_block) || !this.checkConnection(swap_target))
@@ -240,29 +274,45 @@ public class BlockRoot : MonoBehaviour
 				//	this.score_counter.ComboCount(0, false);
 				//}
 
-				// ºí·ÏÀ» ±³Ã¼ÇÑ´Ù.
+				//ìŠ¬ë¼ì´ë“œí•  ê³³ì´ ì¥ì• ë¬¼ì´ê±°ë‚˜ ë²½ì´ë©´ ë£¨í”„íƒˆì¶œ   2023 0526
+				if (swap_target.color == Block.COLOR.Obstacle)
+				{
+					break;
+				}
+
+				//ìŠ¬ë¼ì´ë“œí•  ê³³ì´ ì¥ì• ë¬¼ì´ê±°ë‚˜ ë²½ì´ë©´ ë£¨í”„íƒˆì¶œ  2023 0526
+				if (swap_target.color == Block.COLOR.Wall)
+				{
+					break;
+				}
+
+				// ë¸”ë¡ì„ êµì²´í•œë‹¤.
 				this.swapBlock(
 					grabbed_block, grabbed_block.slide_dir, swap_target);
 				//Debug.Log(grabbed_block);
 
 
-				//bool check º¯¼ö ¸¸µé±â 20230506
+				//bool check ë³€ìˆ˜ ë§Œë“¤ê¸° 20230506
 				bool checkcheck = true;
-				int match_count1 = 1; //¹Ù²åÀ»¶§ ¸ÅÄ¡µÈ º¸¼® ¼ö 20230506
+				int match_count1 = 1; //ë°”ê¿¨ì„ë•Œ ë§¤ì¹˜ëœ ë³´ì„ ìˆ˜ 20230506
 
-				//ºí·ÏÀ» Àâ°í ÀÌµ¿À» ÇÏ¿´À»°æ¿ì ¸ğµç ºí·ÏÀ» °Ë»çÇÔ. 20230506
+				//ë¸”ë¡ì„ ì¡ê³  ì´ë™ì„ í•˜ì˜€ì„ê²½ìš° ëª¨ë“  ë¸”ë¡ì„ ê²€ì‚¬í•¨. 20230506
 				foreach (BlockControl block in this.blocks)
 				{
 
-					if (this.checkConnection(block))			//3¸ÅÄ¡ºí·ÏÀÌ °ãÄ¡´Â°æ¿ì
+					if (this.checkConnection(block))			//3ë§¤ì¹˜ë¸”ë¡ì´ ê²¹ì¹˜ëŠ”ê²½ìš°
 					{
-						this.score_counter.DiffBlockCount(match_count1); //¸ÅÄ¡µÈ º¸¼®¼ö scorecounter½ºÅ©¸³Æ® ÇÔ¼ö¿¡ »ğÀÔ 20230504
-						this.score_counter.ComboCount(0, true);		//ÄŞº¸Ä«¿îÆ® º¯°æ
-						checkcheck = false;     //check check¸¦ false·Î º¯°æ
+						this.BlockChangeaudio.clip = this.CollectSound;
+						this.BlockChangeaudio.PlayDelayed(0.2f);
+						//BlockChangeaudio.PlayOneShot(CollectSound);
+						this.score_counter.DiffBlockCount(match_count1); //ë§¤ì¹˜ëœ ë³´ì„ìˆ˜ scorecounterìŠ¤í¬ë¦½íŠ¸ í•¨ìˆ˜ì— ì‚½ì… 20230504
+						this.score_counter.ComboCount(0, true);		//ì½¤ë³´ì¹´ìš´íŠ¸ ë³€ê²½
+						checkcheck = false;     //check checkë¥¼ falseë¡œ ë³€ê²½
 						for(int i = 1; i < 9; i++)
                         {
 							if (this.score_counter.last.combo == 7*i)
 							{
+								BlockChangeaudio.PlayOneShot(FeverSound);
 								CreateFeverBlock();
 							}
 						}
@@ -273,16 +323,19 @@ public class BlockRoot : MonoBehaviour
 					
 				}
 
-				if(checkcheck)		//checkcheck°¡ ±×´ë·Î trueÀÏ°æ¿ì 3¸ÅÄ¡°¡ µÇÁö¾Ê¾Ò´Ù´Â¶æÀÌ¹Ç·Î
+				if(checkcheck)		//checkcheckê°€ ê·¸ëŒ€ë¡œ trueì¼ê²½ìš° 3ë§¤ì¹˜ê°€ ë˜ì§€ì•Šì•˜ë‹¤ëŠ”ëœ»ì´ë¯€ë¡œ
 				{
 					CreateInterruptBlock();
-					//combo ÃÊ±âÈ­
+
+					StartCoroutine(returnBlock(grabbed_block, grabbed_block.slide_dir, swap_target));
+
+					//combo ì´ˆê¸°í™”
 					this.score_counter.ComboCount(0, false);
 				}
 
 
 
-				this.grabbed_block = null; // Áö±İÀº ºí·ÏÀ» Àâ°í ÀÖÁö ¾Ê´Ù.
+				this.grabbed_block = null; // ì§€ê¸ˆì€ ë¸”ë¡ì„ ì¡ê³  ìˆì§€ ì•Šë‹¤.
 
 
 
@@ -291,130 +344,133 @@ public class BlockRoot : MonoBehaviour
 
 
 			if (!Input.GetMouseButton(0))
-			{ // ¸¶¿ì½º ¹öÆ°ÀÌ ´­·ÁÁ® ÀÖÁö ¾ÊÀ¸¸é.
-				this.grabbed_block.endGrab(); // ºí·ÏÀ» ³õ¾ÒÀ» ¶§ÀÇ Ã³¸®¸¦ ½ÇÇà.
-				this.grabbed_block = null; //  grabbed_blockÀ» ºñ°Ô ¼³Á¤.
+			{ // ë§ˆìš°ìŠ¤ ë²„íŠ¼ì´ ëˆŒë ¤ì ¸ ìˆì§€ ì•Šìœ¼ë©´.
+				this.grabbed_block.endGrab(); // ë¸”ë¡ì„ ë†“ì•˜ì„ ë•Œì˜ ì²˜ë¦¬ë¥¼ ì‹¤í–‰.
+				this.grabbed_block = null; //  grabbed_blockì„ ë¹„ê²Œ ì„¤ì •.
 				
 			}
 		}
 
-		// ³«ÇÏ Áß ¶Ç´Â ½½¶óÀÌµå ÁßÀÌ¸é.
+		// ë‚™í•˜ ì¤‘ ë˜ëŠ” ìŠ¬ë¼ì´ë“œ ì¤‘ì´ë©´.
 		if (this.is_has_falling_block() || this.is_has_sliding_block())
 		{
-			// ¾Æ¹«°Íµµ ÇÏÁö ¾Ê´Â´Ù.
-			// ³«ÇÏ Áßµµ ½½¶óÀÌµå Áßµµ ¾Æ´Ï¸é.
+			// ì•„ë¬´ê²ƒë„ í•˜ì§€ ì•ŠëŠ”ë‹¤.
+			// ë‚™í•˜ ì¤‘ë„ ìŠ¬ë¼ì´ë“œ ì¤‘ë„ ì•„ë‹ˆë©´.
 		}
 		else
 		{
-			//int combo_count = 0;// ÄŞº¸°¡¿îÆ® 20230504
-			int match_count = 1; // ¸ÅÄ¡µÈ º¸¼® ¼ö 20230504
-			int ignite_count = 0; // ¹ßÈ­ ¼ö.
-								  // ±×¸®µå ¾ÈÀÇ ¸ğµç ºí·Ï¿¡ ´ëÇØ¼­ Ã³¸®.
+			//int combo_count = 0;// ì½¤ë³´ê°€ìš´íŠ¸ 20230504
+			int match_count = 1; // ë§¤ì¹˜ëœ ë³´ì„ ìˆ˜ 20230504
+			int ignite_count = 0; // ë°œí™” ìˆ˜.
+								  // ê·¸ë¦¬ë“œ ì•ˆì˜ ëª¨ë“  ë¸”ë¡ì— ëŒ€í•´ì„œ ì²˜ë¦¬.
 			foreach (BlockControl block in this.blocks)
 			{
 				if (!block.isIdle())
-				{ // ´ë±â ÁßÀÌ¸é ·çÇÁÀÇ Ã³À½À¸·Î Á¡ÇÁÇÏ°í,.\
+				{ // ëŒ€ê¸° ì¤‘ì´ë©´ ë£¨í”„ì˜ ì²˜ìŒìœ¼ë¡œ ì í”„í•˜ê³ ,.\
 				  //Debug.Log(block);
-					continue; // ´ÙÀ½ ºí·ÏÀ» Ã³¸®ÇÑ´Ù.
+					continue; // ë‹¤ìŒ ë¸”ë¡ì„ ì²˜ë¦¬í•œë‹¤.
 				}
-				// ¼¼·Î ¶Ç´Â °¡·Î¿¡ °°Àº »ö ºí·ÏÀÌ ¼¼ °³ ÀÌ»ó ³ª¿­Çß´Ù¸é.
+				// ì„¸ë¡œ ë˜ëŠ” ê°€ë¡œì— ê°™ì€ ìƒ‰ ë¸”ë¡ì´ ì„¸ ê°œ ì´ìƒ ë‚˜ì—´í–ˆë‹¤ë©´.
 				if (this.checkConnection(block))
 				{
-					ignite_count++; // ¹ßÈ­ ¼ö¸¦ Áõ°¡.
-									//combo_count++;  //20230504 ÄŞº¸ Áõ°¡            
+					this.BlockChangeaudio.clip = this.CollectSound;
+					this.BlockChangeaudio.loop = false;
+					BlockChangeaudio.PlayOneShot(CollectSound);
+					ignite_count++; // ë°œí™” ìˆ˜ë¥¼ ì¦ê°€.
+									//combo_count++;  //20230504 ì½¤ë³´ ì¦ê°€            
 									//Debug.Log(block);
 					//this.score_counter.ComboCount(combo_count, true);
-					this.score_counter.DiffBlockCount(match_count);//¸ÅÄ¡µÈ º¸¼®¼ö scorecounter½ºÅ©¸³Æ® ÇÔ¼ö¿¡ »ğÀÔ 20230504
+					this.score_counter.DiffBlockCount(match_count);//ë§¤ì¹˜ëœ ë³´ì„ìˆ˜ scorecounterìŠ¤í¬ë¦½íŠ¸ í•¨ìˆ˜ì— ì‚½ì… 20230504
 				}
 
 
 			}
 			if (ignite_count > 0)
-			{ // ¹ßÈ­ ¼ö°¡ 0º¸´Ù Å©¸é.
+			{ // ë°œí™” ìˆ˜ê°€ 0ë³´ë‹¤ í¬ë©´.
 
 				if (!this.is_vanishing_prev)
 				{
-					// Á÷Àü¿¡ ¿¬¼â°¡ ¾Æ´Ï¶ó¸é ¹ßÈ­ È½¼ö ¸®¼Â.
+					// ì§ì „ì— ì—°ì‡„ê°€ ì•„ë‹ˆë¼ë©´ ë°œí™” íšŸìˆ˜ ë¦¬ì…‹.
 					this.score_counter.clearIgniteCount();
 
 				}
-				// ¹ßÈ­ È½¼ö¸¦ ´Ã¸°´Ù.
+				// ë°œí™” íšŸìˆ˜ë¥¼ ëŠ˜ë¦°ë‹¤.
 				this.score_counter.addIgniteCount(ignite_count);
-				// ÇÕ°è ½ºÄÚ¾î °»½Å.
+				// í•©ê³„ ìŠ¤ì½”ì–´ ê°±ì‹ .
 				this.score_counter.updateTotalScore();
 
 
 
-				// £½ÇÑ ±ºµ¥¶óµµ ¸ÂÃçÁø °÷ÀÌ ÀÖÀ¸¸é.
-				int block_count = 0; // ¹ßÈ­ ÁßÀÎ ºí·Ï ¼ö(´ÙÀ½ Àå¿¡¼­ »ç¿ëÇÑ´Ù).
-									 // ±×¸®µå ³»ÀÇ ¸ğµç ºí·Ï¿¡ ´ëÇØ¼­ Ã³¸®.
+				// ï¼í•œ êµ°ë°ë¼ë„ ë§ì¶°ì§„ ê³³ì´ ìˆìœ¼ë©´.
+				int block_count = 0; // ë°œí™” ì¤‘ì¸ ë¸”ë¡ ìˆ˜(ë‹¤ìŒ ì¥ì—ì„œ ì‚¬ìš©í•œë‹¤).
+									 // ê·¸ë¦¬ë“œ ë‚´ì˜ ëª¨ë“  ë¸”ë¡ì— ëŒ€í•´ì„œ ì²˜ë¦¬.
 				foreach (BlockControl block in this.blocks)
 				{
 					if (block.isVanishing())
-					{ // ¹ßÈ­Áß£¨Á¡Á¡ »ç¶óÁø´Ù£©ÀÌ¸é.
-						block.rewindVanishTimer(); // Àç¹ßÈ­£¡.
-						block_count++; // ¹ßÈ­ ÁßÀÎ ºí·ÏÀÇ °³¼ö¸¦ Áõ°¡.
+					{ // ë°œí™”ì¤‘ï¼ˆì ì  ì‚¬ë¼ì§„ë‹¤ï¼‰ì´ë©´.
+						block.rewindVanishTimer(); // ì¬ë°œí™”ï¼.
+						block_count++; // ë°œí™” ì¤‘ì¸ ë¸”ë¡ì˜ ê°œìˆ˜ë¥¼ ì¦ê°€.
 					}
 				}
 			}
 			
 		}
 
-		// ÇÏ³ª¶óµµ ¿¬¼Ò ÁßÀÎ ºí·ÏÀÌ ÀÖ´Â°¡?.
+		// í•˜ë‚˜ë¼ë„ ì—°ì†Œ ì¤‘ì¸ ë¸”ë¡ì´ ìˆëŠ”ê°€?.
 		bool is_vanishing = this.is_has_vanishing_block();
-		// Á¶°ÇÀ» ¸¸Á·ÇÏ¸é ºí·ÏÀ» ¶³¾î¶ß¸®°í ½Í´Ù.
+		// ì¡°ê±´ì„ ë§Œì¡±í•˜ë©´ ë¸”ë¡ì„ ë–¨ì–´ëœ¨ë¦¬ê³  ì‹¶ë‹¤.
 		do
 		{
 			if (is_vanishing)
-			{ // ¿¬¼Ò ÁßÀÎ ºí·ÏÀÌ ÀÖ´Ù¸é.
-				break; // ³«ÇÏ Ã³¸®¸¦ ½ÇÇàÇÏÁö ¾Ê´Â´Ù.
+			{ // ì—°ì†Œ ì¤‘ì¸ ë¸”ë¡ì´ ìˆë‹¤ë©´.
+				break; // ë‚™í•˜ ì²˜ë¦¬ë¥¼ ì‹¤í–‰í•˜ì§€ ì•ŠëŠ”ë‹¤.
 			}
 			if (this.is_has_sliding_block())
-			{ // ±³Ã¼ ÁßÀÎ ºí·ÏÀÌ ÀÖ´Ù¸é.
-				break; // ³«ÇÏ Ã³¸®¸¦ ½ÇÇàÇÏÁö ¾Ê´Â´Ù.
+			{ // êµì²´ ì¤‘ì¸ ë¸”ë¡ì´ ìˆë‹¤ë©´.
+				break; // ë‚™í•˜ ì²˜ë¦¬ë¥¼ ì‹¤í–‰í•˜ì§€ ì•ŠëŠ”ë‹¤.
 			}
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 			{
-				// ¿­¿¡ ±³Ã¼ ÁßÀÎ ºí·ÏÀÌ ÀÖ´Ù¸é, ±× ¿­Àº Ã³¸®ÇÏÁö ¾Ê°í ´ÙÀ½ ¿­·Î ÁøÇàÇÑ´Ù.
+				// ì—´ì— êµì²´ ì¤‘ì¸ ë¸”ë¡ì´ ìˆë‹¤ë©´, ê·¸ ì—´ì€ ì²˜ë¦¬í•˜ì§€ ì•Šê³  ë‹¤ìŒ ì—´ë¡œ ì§„í–‰í•œë‹¤.
 				if (this.is_has_sliding_block_in_column(x))
 				{
 					continue;
 				}
-				// ±× ¿­¿¡ ÀÖ´Â ºí·ÏÀ» À§¿¡¼­ºÎÅÍ °Ë»ç.
+				// ê·¸ ì—´ì— ìˆëŠ” ë¸”ë¡ì„ ìœ„ì—ì„œë¶€í„° ê²€ì‚¬.
 				for (int y = 0; y < Block.BLOCK_NUM_Y - 1; y++)
 				{
-					// ÁöÁ¤ ÁßÀÎ ºí·ÏÀÌ ºñÇ¥½Ã¶ó¸é, ´ÙÀ½ ºí·ÏÀ¸·Î.
+					// ì§€ì • ì¤‘ì¸ ë¸”ë¡ì´ ë¹„í‘œì‹œë¼ë©´, ë‹¤ìŒ ë¸”ë¡ìœ¼ë¡œ.
 					if (!this.blocks[x, y].isVacant())
 					{
 						continue;
 					}
-					// ÁöÁ¤ ÁßÀÎ ºí·Ï ¾Æ·¡¿¡ ÀÖ´Â ºí·ÏÀ» °Ë»ç.
+					// ì§€ì • ì¤‘ì¸ ë¸”ë¡ ì•„ë˜ì— ìˆëŠ” ë¸”ë¡ì„ ê²€ì‚¬.
 					for (int y1 = y + 1; y1 < Block.BLOCK_NUM_Y; y1++)
 					{
-						// ¾Æ·¡¿¡ ÀÖ´Â ºí·ÏÀÌ ºñÇ¥½Ã¶ó¸é, ´ÙÀ½ ºí·ÏÀ¸·Î.
+						// ì•„ë˜ì— ìˆëŠ” ë¸”ë¡ì´ ë¹„í‘œì‹œë¼ë©´, ë‹¤ìŒ ë¸”ë¡ìœ¼ë¡œ.
 						if (this.blocks[x, y1].isVacant())
 						{
 							continue;
 						}
-						//  ºí·ÏÀ» ±³Ã¼ÇÑ´Ù.
+						//  ë¸”ë¡ì„ êµì²´í•œë‹¤.
 						this.fallBlock(this.blocks[x, y], Block.DIR4.UP,
 									   this.blocks[x, y1]);
 						break;
 					}
 				}
 			}
-			// º¸ÃæÃ³¸®.
+			// ë³´ì¶©ì²˜ë¦¬.
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 			{
 				int fall_start_y = Block.BLOCK_NUM_Y;
 				for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
 				{
-					// ºñÇ¥½Ã ºí·ÏÀÌ ¾Æ´Ï¶ó¸é ´ÙÀ½ ºí·ÏÀ¸·Î.
+					// ë¹„í‘œì‹œ ë¸”ë¡ì´ ì•„ë‹ˆë¼ë©´ ë‹¤ìŒ ë¸”ë¡ìœ¼ë¡œ.
 					if (!this.blocks[x, y].isVacant())
 					{
 						continue;
 					}
-					this.blocks[x, y].beginRespawn(fall_start_y); // ºí·Ï ºÎÈ°.
+					this.blocks[x, y].beginRespawn(fall_start_y); // ë¸”ë¡ ë¶€í™œ.
 					fall_start_y++;
 				}
 			}
@@ -429,49 +485,49 @@ public class BlockRoot : MonoBehaviour
 
 
 
-	// ºí·ÏÀ» ¸¸µé¾î ³»°í, °¡·Î ¾ÆÈ© Ä­ ¼¼·Î ¾ÆÈ© Ä­À¸·Î ¹èÄ¡.
+	// ë¸”ë¡ì„ ë§Œë“¤ì–´ ë‚´ê³ , ê°€ë¡œ ì•„í™‰ ì¹¸ ì„¸ë¡œ ì•„í™‰ ì¹¸ìœ¼ë¡œ ë°°ì¹˜.
 	public void initialSetUp()
 	{
-		// Å©±â´Â 9¡¿9·Î ÇÑ´Ù.
+		// í¬ê¸°ëŠ” 9Ã—9ë¡œ í•œë‹¤.
 		this.blocks =
 			new BlockControl[Block.BLOCK_NUM_X, Block.BLOCK_NUM_Y];
-		// ºí·ÏÀÇ »ö ¹øÈ£.
+		// ë¸”ë¡ì˜ ìƒ‰ ë²ˆí˜¸.
 		int color_index = 0;
 
 		Block.COLOR color = Block.COLOR.FIRST;
 
 
 		for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
-		{ // Ã³À½ÇàºÎÅÍ ½ÃÀÛÇàºÎÅÍ ¸¶Áö¸·Çà±îÁö.
+		{ // ì²˜ìŒí–‰ë¶€í„° ì‹œì‘í–‰ë¶€í„° ë§ˆì§€ë§‰í–‰ê¹Œì§€.
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
-			{// ¿ŞÂÊ ³¡¿¡¼­ºÎÅÍ ¿À¸¥ÂÊ ³¡±îÁö.
-			 // BlockPrefabÀÇ ÀÎ½ºÅÏ½º¸¦ ¾À À§¿¡ ¸¸µç´Ù.
+			{// ì™¼ìª½ ëì—ì„œë¶€í„° ì˜¤ë¥¸ìª½ ëê¹Œì§€.
+			 // BlockPrefabì˜ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì”¬ ìœ„ì— ë§Œë“ ë‹¤.
 				GameObject game_object =
 					Instantiate(this.BlockPrefab) as GameObject;
-				// À§¿¡¼­ ¸¸µç ºí·ÏÀÇ BlockControl Å¬·¡½º¸¦ °¡Á®¿Â´Ù.
+				// ìœ„ì—ì„œ ë§Œë“  ë¸”ë¡ì˜ BlockControl í´ë˜ìŠ¤ë¥¼ ê°€ì ¸ì˜¨ë‹¤.
 				BlockControl block = game_object.GetComponent<BlockControl>();
-				// ºí·ÏÀ» Ä­¿¡ ³Ö´Â´Ù.
+				// ë¸”ë¡ì„ ì¹¸ì— ë„£ëŠ”ë‹¤.
 				this.blocks[x, y] = block;
-				// ºí·ÏÀÇ À§Ä¡ Á¤º¸(±×¸®µå ÁÂÇ¥)¸¦ ¼³Á¤.
+				// ë¸”ë¡ì˜ ìœ„ì¹˜ ì •ë³´(ê·¸ë¦¬ë“œ ì¢Œí‘œ)ë¥¼ ì„¤ì •.
 				block.i_pos.x = x;
 				block.i_pos.y = y;
-				// °¢ BlockControlÀÌ ¿¬°èÇÏ´Â GameRoot´Â ÀÚ½ÅÀÌ¶ó°í ¼³Á¤.
+				// ê° BlockControlì´ ì—°ê³„í•˜ëŠ” GameRootëŠ” ìì‹ ì´ë¼ê³  ì„¤ì •.
 				block.block_root = this;
-				// ±×¸®µå ÁÂÇ¥¸¦ ½ÇÁ¦ À§Ä¡(¾À ÁÂÇ¥)·Î º¯È¯.
+				// ê·¸ë¦¬ë“œ ì¢Œí‘œë¥¼ ì‹¤ì œ ìœ„ì¹˜(ì”¬ ì¢Œí‘œ)ë¡œ ë³€í™˜.
 				Vector3 position = BlockRoot.calcBlockPosition(block.i_pos);
-				// ¾À »óÀÇ ºí·Ï À§Ä¡¸¦ ÀÌµ¿.
+				// ì”¬ ìƒì˜ ë¸”ë¡ ìœ„ì¹˜ë¥¼ ì´ë™.
 				block.transform.position = position;
 
-				// ºí·ÏÀÇ »öÀ» º¯°æ. 
+				// ë¸”ë¡ì˜ ìƒ‰ì„ ë³€ê²½. 
 				// block.setColor((Block.COLOR)color_index);
-				// Áö±İÀÇ ÃâÇö È®·üÀ» ¹ÙÅÁÀ¸·Î »öÀ» °áÁ¤ÇÑ´Ù.
+				// ì§€ê¸ˆì˜ ì¶œí˜„ í™•ë¥ ì„ ë°”íƒ•ìœ¼ë¡œ ìƒ‰ì„ ê²°ì •í•œë‹¤.
 				color = this.selectBlockColor();
 				block.setColor(color);
 
-				// ºí·ÏÀÇ ÀÌ¸§À» ¼³Á¤(ÈÄ¼ú).
+				// ë¸”ë¡ì˜ ì´ë¦„ì„ ì„¤ì •(í›„ìˆ ).
 				block.name = "block(" + block.i_pos.x.ToString() +
 					"," + block.i_pos.y.ToString() + ")";
-				// ¸ğµç Á¾·ùÀÇ »ö Áß¿¡¼­ ÀÓÀÇ·Î ÇÑ »öÀ» ¼±ÅÃ.
+				// ëª¨ë“  ì¢…ë¥˜ì˜ ìƒ‰ ì¤‘ì—ì„œ ì„ì˜ë¡œ í•œ ìƒ‰ì„ ì„ íƒ.
 				color_index =
 					Random.Range(0, (int)Block.COLOR.NORMAL_COLOR_NUM);
 			}
@@ -479,41 +535,41 @@ public class BlockRoot : MonoBehaviour
 	}
 
 
-	// ÁöÁ¤µÈ ±×¸®µå ÁÂÇ¥¿¡¼­ ¾À »óÀÇ ÁÂÇ¥¸¦ ±¸ÇÑ´Ù. 
+	// ì§€ì •ëœ ê·¸ë¦¬ë“œ ì¢Œí‘œì—ì„œ ì”¬ ìƒì˜ ì¢Œí‘œë¥¼ êµ¬í•œë‹¤. 
 	public static Vector3 calcBlockPosition(Block.iPosition i_pos)
 	{
-		// ¹èÄ¡ÇÒ ÁÂÃø »ó´Ü ¸ğÅüÀÌ À§Ä¡¸¦ ÃÊ±ê°ªÀ¸·Î ¼³Á¤.
+		// ë°°ì¹˜í•  ì¢Œì¸¡ ìƒë‹¨ ëª¨í‰ì´ ìœ„ì¹˜ë¥¼ ì´ˆê¹ƒê°’ìœ¼ë¡œ ì„¤ì •.
 		Vector3 position = new Vector3(-(Block.BLOCK_NUM_X / 2.0f - 0.5f),
 									   -(Block.BLOCK_NUM_Y / 2.0f - 0.5f), 0.0f);
-		// ÃÊ±ê°ª£«±×¸®µå ÁÂÇ¥ ¡¿ ºí·Ï Å©±â.
+		// ì´ˆê¹ƒê°’ï¼‹ê·¸ë¦¬ë“œ ì¢Œí‘œ Ã— ë¸”ë¡ í¬ê¸°.
 		position.x += (float)i_pos.x * Block.COLLISION_SIZE;
 		position.y += (float)i_pos.y * Block.COLLISION_SIZE;
-		return (position); // ¾ÀÀÇ ÁÂÇ¥¸¦ ¹İÈ¯ÇÑ´Ù.
+		return (position); // ì”¬ì˜ ì¢Œí‘œë¥¼ ë°˜í™˜í•œë‹¤.
 	}
 
 
 	public bool unprojectMousePosition(out Vector3 world_position, Vector3 mouse_position)
 	{
 		bool ret;
-		// ÆÇÀ» »ı¼º. ÀÌ ÆÇÀº Ä«¸Ş¶ó¿¡¼­ º¸ÀÌ´Â ¸éÀÌ ¾Õ.
-		// ºí·ÏÀÇ Àı¹İ Å©±â¸¸Å­ ¾ÕÀ¸·Î ³õÀÎ´Ù.
+		// íŒì„ ìƒì„±. ì´ íŒì€ ì¹´ë©”ë¼ì—ì„œ ë³´ì´ëŠ” ë©´ì´ ì•.
+		// ë¸”ë¡ì˜ ì ˆë°˜ í¬ê¸°ë§Œí¼ ì•ìœ¼ë¡œ ë†“ì¸ë‹¤.
 		Plane plane = new Plane(Vector3.back, new Vector3(
 			0.0f, 0.0f, -Block.COLLISION_SIZE / 2.0f));
-		// Ä«¸Ş¶ó¿Í ¸¶¿ì½º¸¦ Åë°úÇÏ´Â ±¤¼±À» »ı¼º.
+		// ì¹´ë©”ë¼ì™€ ë§ˆìš°ìŠ¤ë¥¼ í†µê³¼í•˜ëŠ” ê´‘ì„ ì„ ìƒì„±.
 		Ray ray = this.main_camera.GetComponent<Camera>().ScreenPointToRay(
 			mouse_position);
 		float depth;
-		// ±¤¼± ray°¡ ÆÇ plane¿¡ ´ê¾Ò´Ù¸é.
+		// ê´‘ì„  rayê°€ íŒ planeì— ë‹¿ì•˜ë‹¤ë©´.
 		if (plane.Raycast(ray, out depth))
 		{
-			// ÀÎ¼ö world_positionÀ» ¸¶¿ì½º À§Ä¡·Î µ¤¾î¾´´Ù.
+			// ì¸ìˆ˜ world_positionì„ ë§ˆìš°ìŠ¤ ìœ„ì¹˜ë¡œ ë®ì–´ì“´ë‹¤.
 			world_position = ray.origin + ray.direction * depth;
 			ret = true;
-			// ´êÁö ¾Ê¾Ò´Ù¸é.
+			// ë‹¿ì§€ ì•Šì•˜ë‹¤ë©´.
 		}
 		else
 		{
-			// ÀÎ¼ö world_positionÀ» Á¦·ÎÀÎ º¤ÅÍ·Î µ¤¾î¾´´Ù.
+			// ì¸ìˆ˜ world_positionì„ ì œë¡œì¸ ë²¡í„°ë¡œ ë®ì–´ì“´ë‹¤.
 			world_position = Vector3.zero;
 			ret = false;
 		}
@@ -526,34 +582,38 @@ public class BlockRoot : MonoBehaviour
 	public BlockControl getNextBlock(
 		BlockControl block, Block.DIR4 dir)
 	{
-		// ½½¶óÀÌµåÇÒ °÷ÀÇ ºí·ÏÀ» ¿©±â¿¡ ÀúÀå.
+		// ìŠ¬ë¼ì´ë“œí•  ê³³ì˜ ë¸”ë¡ì„ ì—¬ê¸°ì— ì €ì¥.
 		BlockControl next_block = null;
 		switch (dir)
 		{
 			case Block.DIR4.RIGHT:
 				if (block.i_pos.x < Block.BLOCK_NUM_X - 1)
 				{
-					// ±×¸®µå ¾ÈÀÌ¶ó¸é.
+					// ê·¸ë¦¬ë“œ ì•ˆì´ë¼ë©´.
 					next_block = this.blocks[block.i_pos.x + 1, block.i_pos.y];
+					next_block.color = this.blocks[block.i_pos.x + 1, block.i_pos.y].color;		//ë‹¤ìŒë¸”ëŸ­ ìƒ‰ë³€í™˜
 				}
 				break;
 
 			case Block.DIR4.LEFT:
 				if (block.i_pos.x > 0)
-				{ // ±×¸®µå ¾ÈÀÌ¶ó¸é.
+				{ // ê·¸ë¦¬ë“œ ì•ˆì´ë¼ë©´.
 					next_block = this.blocks[block.i_pos.x - 1, block.i_pos.y];
+					next_block.color = this.blocks[block.i_pos.x - 1, block.i_pos.y].color;   //ë‹¤ìŒë¸”ëŸ­ ìƒ‰ë³€í™˜
 				}
 				break;
 			case Block.DIR4.UP:
 				if (block.i_pos.y < Block.BLOCK_NUM_Y - 1)
-				{ // ±×¸®µå ¾ÈÀÌ¶ó¸é.
+				{ // ê·¸ë¦¬ë“œ ì•ˆì´ë¼ë©´.
 					next_block = this.blocks[block.i_pos.x, block.i_pos.y + 1];
+					next_block.color = this.blocks[block.i_pos.x, block.i_pos.y + 1].color;   //ë‹¤ìŒë¸”ëŸ­ ìƒ‰ë³€í™˜
 				}
 				break;
 			case Block.DIR4.DOWN:
 				if (block.i_pos.y > 0)
-				{ // ±×¸®µå ¾ÈÀÌ¶ó¸é.
+				{ // ê·¸ë¦¬ë“œ ì•ˆì´ë¼ë©´.
 					next_block = this.blocks[block.i_pos.x, block.i_pos.y - 1];
+					next_block.color = this.blocks[block.i_pos.x, block.i_pos.y - 1].color;   //ë‹¤ìŒë¸”ëŸ­ ìƒ‰ë³€í™˜
 				}
 				break;
 		}
@@ -565,12 +625,12 @@ public class BlockRoot : MonoBehaviour
 		Vector3 v = Vector3.zero;
 		switch (dir)
 		{
-			case Block.DIR4.RIGHT: v = Vector3.right; break; // ¿À¸¥ÂÊÀ¸·Î 1´ÜÀ§ ÀÌµ¿ÇÑ´Ù.
-			case Block.DIR4.LEFT: v = Vector3.left; break; // ¿ŞÂÊÀ¸·Î 1´ÜÀ§ ÀÌµ¿ÇÑ´Ù.
-			case Block.DIR4.UP: v = Vector3.up; break; // À§·Î 1´ÜÀ§ ÀÌµ¿ÇÑ´Ù.
-			case Block.DIR4.DOWN: v = Vector3.down; break; // ¾Æ·¡·Î 1´ÜÀ§ ÀÌµ¿ÇÑ´Ù.
+			case Block.DIR4.RIGHT: v = Vector3.right; break; // ì˜¤ë¥¸ìª½ìœ¼ë¡œ 1ë‹¨ìœ„ ì´ë™í•œë‹¤.
+			case Block.DIR4.LEFT: v = Vector3.left; break; // ì™¼ìª½ìœ¼ë¡œ 1ë‹¨ìœ„ ì´ë™í•œë‹¤.
+			case Block.DIR4.UP: v = Vector3.up; break; // ìœ„ë¡œ 1ë‹¨ìœ„ ì´ë™í•œë‹¤.
+			case Block.DIR4.DOWN: v = Vector3.down; break; // ì•„ë˜ë¡œ 1ë‹¨ìœ„ ì´ë™í•œë‹¤.
 		}
-		v *= Block.COLLISION_SIZE; // ºí·Ï Å©±â¸¦ °öÇÑ´Ù.
+		v *= Block.COLLISION_SIZE; // ë¸”ë¡ í¬ê¸°ë¥¼ ê³±í•œë‹¤.
 		return (v);
 	}
 
@@ -591,29 +651,33 @@ public class BlockRoot : MonoBehaviour
 
 	public void swapBlock(BlockControl block0, Block.DIR4 dir, BlockControl block1)
 	{
-		// °¢ ºí·ÏÀÇ »öÀ» ±â¾ïÇØ µĞ´Ù.
+		// ê° ë¸”ë¡ì˜ ìƒ‰ì„ ê¸°ì–µí•´ ë‘”ë‹¤.
 		Block.COLOR color0 = block0.color;
 		Block.COLOR color1 = block1.color;
-		// °¢ ºí·ÏÀÇ.
-		// È®´ëÀ²À» ±â¾ïÇØ µĞ´Ù.
+		// ê° ë¸”ë¡ì˜.
+		// í™•ëŒ€ìœ¨ì„ ê¸°ì–µí•´ ë‘”ë‹¤.
 		Vector3 scale0 =
 			block0.transform.localScale;
 		Vector3 scale1 =
 			block1.transform.localScale;
-		//  °¢ ºí·ÏÀÇ '»ç¶óÁö´Â ½Ã°£'À» ±â¾ïÇØ µĞ´Ù.
+		//  ê° ë¸”ë¡ì˜ 'ì‚¬ë¼ì§€ëŠ” ì‹œê°„'ì„ ê¸°ì–µí•´ ë‘”ë‹¤.
 		float vanish_timer0 = block0.vanish_timer;
 		float vanish_timer1 = block1.vanish_timer;
-		// °¢ ºí·ÏÀÌ ÀÌµ¿ÇÒ °÷À» ±¸ÇÑ´Ù.
+		// ê° ë¸”ë¡ì´ ì´ë™í•  ê³³ì„ êµ¬í•œë‹¤.
 		Vector3 offset0 = BlockRoot.getDirVector(dir);
 		Vector3 offset1 = BlockRoot.getDirVector(BlockRoot.getOppositDir(dir));
-		block0.setColor(color1); //  »öÀ» ±³Ã¼ÇÑ´Ù.
+		block0.setColor(color1); //  ìƒ‰ì„ êµì²´í•œë‹¤.
 		block1.setColor(color0);
-		block0.transform.localScale = scale1; // È®´ëÀ²À» ±³Ã¼ÇÑ´Ù.
+		block0.transform.localScale = scale1; // í™•ëŒ€ìœ¨ì„ êµì²´í•œë‹¤.
 		block1.transform.localScale = scale0;
-		block0.vanish_timer = vanish_timer1; // »ç¶óÁö´Â ½Ã°£À» ±³Ã¼ÇÑ´Ù.
+		block0.vanish_timer = vanish_timer1; // ì‚¬ë¼ì§€ëŠ” ì‹œê°„ì„ êµì²´í•œë‹¤.
 		block1.vanish_timer = vanish_timer0;
-		block0.beginSlide(offset0); // ¿ø·¡ ºí·ÏÀÇ ÀÌµ¿À» ½ÃÀÛ.
-		block1.beginSlide(offset1); // ÀÌµ¿ÇÒ °÷ÀÇ ºí·Ï ÀÌµ¿À» ½ÃÀÛ.
+		block0.beginSlide(offset0); // ì›ë˜ ë¸”ë¡ì˜ ì´ë™ì„ ì‹œì‘.
+		block1.beginSlide(offset1); // ì´ë™í•  ê³³ì˜ ë¸”ë¡ ì´ë™ì„ ì‹œì‘.
+
+		this.BlockChangeaudio.clip = this.BlockChangeSound;
+		this.BlockChangeaudio.loop = false;
+		BlockChangeaudio.PlayOneShot(BlockChangeSound);
 	}
 
 	
@@ -622,15 +686,15 @@ public class BlockRoot : MonoBehaviour
 		bool ret = false;
 		int normal_block_num = 0;
 		
-		// ÀÎ¼öÀÎ ºí·ÏÀÌ ¹ßÈ­ ÈÄ°¡ ¾Æ´Ï¸é.
+		// ì¸ìˆ˜ì¸ ë¸”ë¡ì´ ë°œí™” í›„ê°€ ì•„ë‹ˆë©´.
 		if (!start.isVanishing())
 		{
 			normal_block_num = 1;
 		}
-		// ±×¸®µå ÁÂÇ¥¸¦ ±â¾ïÇØ µĞ´Ù.
+		// ê·¸ë¦¬ë“œ ì¢Œí‘œë¥¼ ê¸°ì–µí•´ ë‘”ë‹¤.
 		int rx = start.i_pos.x;
 		int lx = start.i_pos.x;
-		// ºí·ÏÀÇ ¿ŞÂÊÀ» °Ë»ç.
+		// ë¸”ë¡ì˜ ì™¼ìª½ì„ ê²€ì‚¬.
 		for (int x = lx - 1; x >= 0; x--)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.y];
@@ -644,26 +708,26 @@ public class BlockRoot : MonoBehaviour
 			}
 
 			if (next_block.color != start.color)
-			{ // »öÀÌ ´Ù¸£¸é.
-				break; // ·çÇÁ Å»Ãâ.
+			{ // ìƒ‰ì´ ë‹¤ë¥´ë©´.
+				break; // ë£¨í”„ íƒˆì¶œ.
 			}
-			if (next_block.step == Block.STEP.FALL || // ³«ÇÏ ÁßÀÌ¸é.
+			if (next_block.step == Block.STEP.FALL || // ë‚™í•˜ ì¤‘ì´ë©´.
 			   next_block.next_step == Block.STEP.FALL)
 			{
-				break; // ·çÇÁ Å»Ãâ.
+				break; // ë£¨í”„ íƒˆì¶œ.
 			}
-			if (next_block.step == Block.STEP.SLIDE || // ½½¶óÀÌµå ÁßÀÌ¸é.
+			if (next_block.step == Block.STEP.SLIDE || // ìŠ¬ë¼ì´ë“œ ì¤‘ì´ë©´.
 			   next_block.next_step == Block.STEP.SLIDE)
 			{
-				break; // ·çÇÁ Å»Ãâ.
+				break; // ë£¨í”„ íƒˆì¶œ.
 			}
 			if (!next_block.isVanishing())
-			{ // ¹ßÈ­ ÁßÀÌ ¾Æ´Ï¸é.
-				normal_block_num++; // °Ë»ç¿ë Ä«¿îÅÍ¸¦ Áõ°¡.
+			{ // ë°œí™” ì¤‘ì´ ì•„ë‹ˆë©´.
+				normal_block_num++; // ê²€ì‚¬ìš© ì¹´ìš´í„°ë¥¼ ì¦ê°€.
 			}
 			lx = x;
 		}
-		// ºí·ÏÀÇ ¿À¸¥ÂÊÀ» °Ë»ç.
+		// ë¸”ë¡ì˜ ì˜¤ë¥¸ìª½ì„ ê²€ì‚¬.
 		for (int x = rx + 1; x < Block.BLOCK_NUM_X; x++)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.y];
@@ -698,62 +762,62 @@ public class BlockRoot : MonoBehaviour
 		}
 		do
 		{
-			// ¿À¸¥ÂÊ ºí·ÏÀÇ ±×¸®µå ¹øÈ£ - ¿ŞÂÊ ºí·ÏÀÇ ±×¸®µå ¹øÈ£ +.
-			// Áß¾Ó ºí·Ï(1)À» ´õÇÑ ¼ö°¡ 3¹Ì¸¸ ÀÌ¸é.
+			// ì˜¤ë¥¸ìª½ ë¸”ë¡ì˜ ê·¸ë¦¬ë“œ ë²ˆí˜¸ - ì™¼ìª½ ë¸”ë¡ì˜ ê·¸ë¦¬ë“œ ë²ˆí˜¸ +.
+			// ì¤‘ì•™ ë¸”ë¡(1)ì„ ë”í•œ ìˆ˜ê°€ 3ë¯¸ë§Œ ì´ë©´.
 			if (rx - lx + 1 < 3)
 			{
-				break; // ·çÇÁ Å»Ãâ.
+				break; // ë£¨í”„ íƒˆì¶œ.
 			}
 			
 			if (normal_block_num == 0)
-			{ // ¹ßÈ­ ÁßÀÌ ¾Æ´Ñ ºí·ÏÀÌ ÇÏ³ªµµ ¾øÀ¸¸é.
-				break; // ·çÇÁ Å»Ãâ.
+			{ // ë°œí™” ì¤‘ì´ ì•„ë‹Œ ë¸”ë¡ì´ í•˜ë‚˜ë„ ì—†ìœ¼ë©´.
+				break; // ë£¨í”„ íƒˆì¶œ.
 			}
-			if (rx - lx + 1 == 4)//20230510 4¸ÅÄ¡ ÀÏ¶§  ¿òÁ÷ÀÎ ºí·Ï Á¦¿Ü ´Ù ÅÍ¶ß¸®´Â for¹®
+			if (rx - lx + 1 == 4)//20230510 4ë§¤ì¹˜ ì¼ë•Œ  ì›€ì§ì¸ ë¸”ë¡ ì œì™¸ ë‹¤ í„°ëœ¨ë¦¬ëŠ” forë¬¸
 			{
 				for (int x = lx; x < start.i_pos.x; x++)
 				{
-					// ³ª¿­µÈ °°Àº »ö ºí·ÏÀ» ¹ßÈ­ »óÅÂ·Î.
+					// ë‚˜ì—´ëœ ê°™ì€ ìƒ‰ ë¸”ë¡ì„ ë°œí™” ìƒíƒœë¡œ.
 					this.blocks[x, start.i_pos.y].toVanishing();
-					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 »ö»óÈ®ÀÎÇØ¼­ Â÷°¨
+					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 ìƒ‰ìƒí™•ì¸í•´ì„œ ì°¨ê°
 					//score_counter.
 					ret = true;
 				}
 				for (int x = start.i_pos.x+1; x < rx + 1; x++)
 				{
-					// ³ª¿­µÈ °°Àº »ö ºí·ÏÀ» ¹ßÈ­ »óÅÂ·Î.
+					// ë‚˜ì—´ëœ ê°™ì€ ìƒ‰ ë¸”ë¡ì„ ë°œí™” ìƒíƒœë¡œ.
 					this.blocks[x, start.i_pos.y].toVanishing();
-					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 »ö»óÈ®ÀÎÇØ¼­ Â÷°¨
+					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 ìƒ‰ìƒí™•ì¸í•´ì„œ ì°¨ê°
 					ret = true;
 				}
 				
-				score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, start.i_pos.y].color);//20230523 ÀÌ·¸°ÔµÇ¸é 3°³¸¸ Áö¿öÁö´Ï±ñ,
+				score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, start.i_pos.y].color);//20230523 ì´ë ‡ê²Œë˜ë©´ 3ê°œë§Œ ì§€ì›Œì§€ë‹ˆê¹,
 
 
 				this.blocks[start.i_pos.x, start.i_pos.y].color = Block.COLOR.Bomb;
 				
 
 			}
-			else if (rx - lx + 1 == 5)//20230510 5¸ÅÄ¡ ÀÏ¶§  ¿òÁ÷ÀÎ ºí·Ï Á¦¿Ü ´Ù ÅÍ¶ß¸®´Â for¹®
+			else if (rx - lx + 1 == 5)//20230510 5ë§¤ì¹˜ ì¼ë•Œ  ì›€ì§ì¸ ë¸”ë¡ ì œì™¸ ë‹¤ í„°ëœ¨ë¦¬ëŠ” forë¬¸
             {
-                //Debug.Log("5¸ÅÄ¡ ½ÇÇà");
+                //Debug.Log("5ë§¤ì¹˜ ì‹¤í–‰");
                 for (int x = lx; x < start.i_pos.x; x++)
                 {
-                    // ³ª¿­µÈ °°Àº »ö ºí·ÏÀ» ¹ßÈ­ »óÅÂ·Î.
-                    score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 »ö»óÈ®ÀÎÇØ¼­ Â÷°¨
+                    // ë‚˜ì—´ëœ ê°™ì€ ìƒ‰ ë¸”ë¡ì„ ë°œí™” ìƒíƒœë¡œ.
+                    score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 ìƒ‰ìƒí™•ì¸í•´ì„œ ì°¨ê°
                     this.blocks[x, start.i_pos.y].toVanishing();
                     ret = true;
                 }
                 for (int x = start.i_pos.x + 1; x < rx + 1; x++)
                 {
-                    // ³ª¿­µÈ °°Àº »ö ºí·ÏÀ» ¹ßÈ­ »óÅÂ·Î.
-                    score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 »ö»óÈ®ÀÎÇØ¼­ Â÷°¨
+                    // ë‚˜ì—´ëœ ê°™ì€ ìƒ‰ ë¸”ë¡ì„ ë°œí™” ìƒíƒœë¡œ.
+                    score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 ìƒ‰ìƒí™•ì¸í•´ì„œ ì°¨ê°
                     this.blocks[x, start.i_pos.y].toVanishing();
                     ret = true;
                 }
             
-                score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, start.i_pos.y].color);//20230523ÀÌ·¸°ÔÇÏ¸é 4°³¸¸ Áö¿öÁö´Ï±ñ.
-				this.blocks[start.i_pos.x, start.i_pos.y].pop5Color = this.blocks[start.i_pos.x, start.i_pos.y].color;//pop5color´Â »öÀ» ÀúÀå
+                score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, start.i_pos.y].color);//20230523ì´ë ‡ê²Œí•˜ë©´ 4ê°œë§Œ ì§€ì›Œì§€ë‹ˆê¹.
+				this.blocks[start.i_pos.x, start.i_pos.y].pop5Color = this.blocks[start.i_pos.x, start.i_pos.y].color;//pop5colorëŠ” ìƒ‰ì„ ì €ì¥
 				this.blocks[start.i_pos.x, start.i_pos.y].color = Block.COLOR.POP5;
 				//Debug.Log(this.blocks[start.i_pos.x, start.i_pos.y].pop5Color);
 				//this.blocks[start.i_pos.y, start.i_pos.y].step = Block.STEP.FALL;
@@ -762,10 +826,10 @@ public class BlockRoot : MonoBehaviour
 			{
 				for (int x = lx; x < rx + 1; x++)
 				{
-					// ³ª¿­µÈ °°Àº »ö ºí·ÏÀ» ¹ßÈ­ »óÅÂ·Î.
+					// ë‚˜ì—´ëœ ê°™ì€ ìƒ‰ ë¸”ë¡ì„ ë°œí™” ìƒíƒœë¡œ.
 					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);
 					this.blocks[x, start.i_pos.y].toVanishing();
-					//±ÙÃ³¿¡ ¹æÇØ¹°ÀÌ ÀÖ´ÂÁö °Ë»ç
+					//ê·¼ì²˜ì— ë°©í•´ë¬¼ì´ ìˆëŠ”ì§€ ê²€ì‚¬
 					DestroyInterruptBlock(blocks[x, start.i_pos.y]);
 					ret = true;
 				}
@@ -778,7 +842,7 @@ public class BlockRoot : MonoBehaviour
 		}
 		int uy = start.i_pos.y;
 		int dy = start.i_pos.y;
-		// ºí·ÏÀÇ À§ÂÊÀ» °Ë»ç.
+		// ë¸”ë¡ì˜ ìœ„ìª½ì„ ê²€ì‚¬.
 		for (int y = dy - 1; y >= 0; y--)
 		{
 			BlockControl next_block = this.blocks[start.i_pos.x, y];
@@ -810,7 +874,7 @@ public class BlockRoot : MonoBehaviour
 			}
 			dy = y;
 		}
-		// ºí·ÏÀÇ ¾Æ·¡ÂÊÀ» °Ë»ç.
+		// ë¸”ë¡ì˜ ì•„ë˜ìª½ì„ ê²€ì‚¬.
 		for (int y = uy + 1; y < Block.BLOCK_NUM_Y; y++) 
 		{
 			BlockControl next_block = this.blocks[start.i_pos.x, y];
@@ -855,21 +919,21 @@ public class BlockRoot : MonoBehaviour
 			if (uy - dy + 1 == 4)
 			{
 				
-				for (int y = dy; y < start.i_pos.y; y++) //20230510 4¸ÅÄ¡ ÀÏ¶§  ¿òÁ÷ÀÎ ºí·Ï Á¦¿Ü ´Ù ÅÍ¶ß¸®´Â for¹®
+				for (int y = dy; y < start.i_pos.y; y++) //20230510 4ë§¤ì¹˜ ì¼ë•Œ  ì›€ì§ì¸ ë¸”ë¡ ì œì™¸ ë‹¤ í„°ëœ¨ë¦¬ëŠ” forë¬¸
 				{
-					//¹ØºÎºĞ ¹ßÈ­
-					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 »ö»óÈ®ÀÎÇØ¼­ Â÷°¨
+					//ë°‘ë¶€ë¶„ ë°œí™”
+					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 ìƒ‰ìƒí™•ì¸í•´ì„œ ì°¨ê°
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
 				}
 				for (int y = start.i_pos.y + 1; y < uy + 1; y++)
 				{
-					// À­ºÎºĞ ¹ßÈ­
-					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 »ö»óÈ®ÀÎÇØ¼­ Â÷°¨
+					// ìœ—ë¶€ë¶„ ë°œí™”
+					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 ìƒ‰ìƒí™•ì¸í•´ì„œ ì°¨ê°
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
 				}
-				score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, start.i_pos.y].color);//20230523ÀÌ·¸°ÔÇÏ¸é 3°³¸¸ Áö¿öÁö´Ï±ñ.
+				score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, start.i_pos.y].color);//20230523ì´ë ‡ê²Œí•˜ë©´ 3ê°œë§Œ ì§€ì›Œì§€ë‹ˆê¹.
 				this.blocks[start.i_pos.x, start.i_pos.y].color = Block.COLOR.Bomb;
 				this.blocks[start.i_pos.y, start.i_pos.y].step = Block.STEP.FALL;
 			}
@@ -881,17 +945,17 @@ public class BlockRoot : MonoBehaviour
 				start.color = Block.COLOR.POP5;
 				//this.blocks[start.i_pos.y, start.i_pos.y].step = Block.STEP.FALL;
 				//Debug.Log(start.pop5Color);
-				for (int y = dy; y < start.i_pos.y; y++) //20230510 5¸ÅÄ¡ ÀÏ¶§  ¿òÁ÷ÀÎ ºí·Ï Á¦¿Ü ´Ù ÅÍ¶ß¸®´Â for¹®
+				for (int y = dy; y < start.i_pos.y; y++) //20230510 5ë§¤ì¹˜ ì¼ë•Œ  ì›€ì§ì¸ ë¸”ë¡ ì œì™¸ ë‹¤ í„°ëœ¨ë¦¬ëŠ” forë¬¸
 				{
-					//¹ØºÎºĞ ¹ßÈ­
-					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 »ö»óÈ®ÀÎÇØ¼­ Â÷°¨
+					//ë°‘ë¶€ë¶„ ë°œí™”
+					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 ìƒ‰ìƒí™•ì¸í•´ì„œ ì°¨ê°
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
 				}
 				for (int y = start.i_pos.y + 1; y < uy + 1; y++)
 				{
-					// À­ºÎºĞ ¹ßÈ­
-					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 »ö»óÈ®ÀÎÇØ¼­ Â÷°¨
+					// ìœ—ë¶€ë¶„ ë°œí™”
+					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 ìƒ‰ìƒí™•ì¸í•´ì„œ ì°¨ê°
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
 				}
@@ -901,8 +965,8 @@ public class BlockRoot : MonoBehaviour
 			{
 				for (int y = dy; y < uy + 1; y++)
 				{
-					//±ÙÃ³¿¡ ¹æÇØ¹°ÀÌ ÀÖ´ÂÁö °Ë»ç
-					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 »ö»óÈ®ÀÎÇØ¼­ Â÷°¨
+					//ê·¼ì²˜ì— ë°©í•´ë¬¼ì´ ìˆëŠ”ì§€ ê²€ì‚¬
+					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 ìƒ‰ìƒí™•ì¸í•´ì„œ ì°¨ê°
 					DestroyInterruptBlock(blocks[start.i_pos.x, y]);
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
@@ -915,7 +979,7 @@ public class BlockRoot : MonoBehaviour
 	}
 
 
-	//ºÒºÙ´ÂÁßÀÎ ºí·ÏÀÌ ÇÏ³ª¶óµµ ÀÖÀ¸¸é true ¹İÈ¯
+	//ë¶ˆë¶™ëŠ”ì¤‘ì¸ ë¸”ë¡ì´ í•˜ë‚˜ë¼ë„ ìˆìœ¼ë©´ true ë°˜í™˜
 	private bool is_has_vanishing_block()
 	{
 		bool ret = false;
@@ -930,7 +994,7 @@ public class BlockRoot : MonoBehaviour
 		return (ret);
 	}
 
-	//½½¶óÀÌµå ÁßÀÎ ºí·ÏÀÌ ÇÏ³ª¶óµµ ÀÖÀ¸¸é true¹İÈ¯
+	//ìŠ¬ë¼ì´ë“œ ì¤‘ì¸ ë¸”ë¡ì´ í•˜ë‚˜ë¼ë„ ìˆìœ¼ë©´ trueë°˜í™˜
 	private bool is_has_sliding_block()
 	{
 		bool ret = false;
@@ -944,7 +1008,7 @@ public class BlockRoot : MonoBehaviour
 		}
 		return (ret);
 	}
-	//³«ÇÏÁßÀÎ ºí·ÏÀÌ ÇÏ³ª¶óµµ ÀÖÀ¸¸é true ¹İÈ¯
+	//ë‚™í•˜ì¤‘ì¸ ë¸”ë¡ì´ í•˜ë‚˜ë¼ë„ ìˆìœ¼ë©´ true ë°˜í™˜
 	private bool is_has_falling_block()
 	{
 		bool ret = false;
@@ -962,7 +1026,7 @@ public class BlockRoot : MonoBehaviour
 	public void fallBlock(
 		BlockControl block0, Block.DIR4 dir, BlockControl block1)
 	{
-		// block0°ú block1ÀÇ »ö, Å©±â, »ç¶óÁú ¶§±îÁö °É¸®´Â ½Ã°£, Ç¥½Ã, ºñÇ¥½Ã, »óÅÂ¸¦ ±â·Ï.
+		// block0ê³¼ block1ì˜ ìƒ‰, í¬ê¸°, ì‚¬ë¼ì§ˆ ë•Œê¹Œì§€ ê±¸ë¦¬ëŠ” ì‹œê°„, í‘œì‹œ, ë¹„í‘œì‹œ, ìƒíƒœë¥¼ ê¸°ë¡.
 		Block.COLOR color0 = block0.color;
 		Block.COLOR color1 = block1.color;
 		Vector3 scale0 = block0.transform.localScale;
@@ -973,7 +1037,7 @@ public class BlockRoot : MonoBehaviour
 		bool visible1 = block1.isVisible();
 		Block.STEP step0 = block0.step;
 		Block.STEP step1 = block1.step;
-		// block0°ú block1ÀÇ °¢Á¾ ¼Ó¼ºÀ» ±³Ã¼ÇÑ´Ù.
+		// block0ê³¼ block1ì˜ ê°ì¢… ì†ì„±ì„ êµì²´í•œë‹¤.
 		block0.setColor(color1);
 		block1.setColor(color0);
 		block0.transform.localScale = scale1;
@@ -994,8 +1058,8 @@ public class BlockRoot : MonoBehaviour
 		for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
 		{
 			if (this.blocks[x, y].isSliding())
-			{ // ½½¶óÀÌµå ÁßÀÎ ºí·ÏÀÌ ÀÖÀ¸¸é.
-				ret = true; // true¸¦ ¹İÈ¯ÇÑ´Ù. 
+			{ // ìŠ¬ë¼ì´ë“œ ì¤‘ì¸ ë¸”ë¡ì´ ìˆìœ¼ë©´.
+				ret = true; // trueë¥¼ ë°˜í™˜í•œë‹¤. 
 				break;
 			}
 		}
@@ -1007,38 +1071,38 @@ public class BlockRoot : MonoBehaviour
 	public void create()
 	{
 		this.level_control = new LevelControl();
-		this.level_control.initialize(); // ·¹º§ µ¥ÀÌÅÍ ÃÊ±âÈ­.
-		this.level_control.loadLevelData(this.levelData); // µ¥ÀÌÅÍ ÀĞ±â.
-		this.level_control.selectLevel(); // ·¹º§ ¼±ÅÃ.
+		this.level_control.initialize(); // ë ˆë²¨ ë°ì´í„° ì´ˆê¸°í™”.
+		this.level_control.loadLevelData(this.levelData); // ë°ì´í„° ì½ê¸°.
+		this.level_control.selectLevel(); // ë ˆë²¨ ì„ íƒ.
 	}
 	public Block.COLOR selectBlockColor()
 	{
 		Block.COLOR color = Block.COLOR.FIRST;
-		// ÀÌ¹ø ·¹º§ÀÇ ·¹º§ µ¥ÀÌÅÍ¸¦ °¡Á®¿Â´Ù.
+		// ì´ë²ˆ ë ˆë²¨ì˜ ë ˆë²¨ ë°ì´í„°ë¥¼ ê°€ì ¸ì˜¨ë‹¤.
 		LevelData level_data =
 			this.level_control.getCurrentLevelData();
-		float rand = Random.Range(0.0f, 1.0f); // 0.0~1.0 »çÀÌÀÇ ³­¼ö.
-		float sum = 0.0f; // ÃâÇö È®·üÀÇ ÇÕ°è.
+		float rand = Random.Range(0.0f, 1.0f); // 0.0~1.0 ì‚¬ì´ì˜ ë‚œìˆ˜.
+		float sum = 0.0f; // ì¶œí˜„ í™•ë¥ ì˜ í•©ê³„.
 		int i = 0;
-		// ºí·ÏÀÇ Á¾·ù ÀüÃ¼¸¦ Ã³¸®ÇÏ´Â ·çÇÁ.
+		// ë¸”ë¡ì˜ ì¢…ë¥˜ ì „ì²´ë¥¼ ì²˜ë¦¬í•˜ëŠ” ë£¨í”„.
 		for (i = 0; i < level_data.probability.Length - 1; i++)
 		{
 			if (level_data.probability[i] == 0.0f)
 			{
-				continue; // ÃâÇö È®·üÀÌ 0ÀÌ¸é ·çÇÁÀÇ Ã³À½À¸·Î Á¡ÇÁ.
+				continue; // ì¶œí˜„ í™•ë¥ ì´ 0ì´ë©´ ë£¨í”„ì˜ ì²˜ìŒìœ¼ë¡œ ì í”„.
 			}
-			sum += level_data.probability[i]; // ÃâÇö È®·üÀ» ´õÇÑ´Ù.
+			sum += level_data.probability[i]; // ì¶œí˜„ í™•ë¥ ì„ ë”í•œë‹¤.
 			if (rand < sum)
-			{ // ÇÕ°è°¡ ³­¼ı°ªÀ» ¿ôµ¹¸é.
-				break; // ·çÇÁ¸¦ ºüÁ®³ª¿Â´Ù.
+			{ // í•©ê³„ê°€ ë‚œìˆ«ê°’ì„ ì›ƒëŒë©´.
+				break; // ë£¨í”„ë¥¼ ë¹ ì ¸ë‚˜ì˜¨ë‹¤.
 			}
 		}
-		color = (Block.COLOR)i; // i¹øÂ° »öÀ» ¹İÈ¯ÇÑ´Ù.
+		color = (Block.COLOR)i; // ië²ˆì§¸ ìƒ‰ì„ ë°˜í™˜í•œë‹¤.
 		return (color);
 	}
 
 
-	//Range¹üÀ§¾È¿¡¼­ ·£´ı ºí·°À» Àå¾Ö¹°·Î ¹Ù²Ù´ÂÇÔ¼ö
+	//Rangeë²”ìœ„ì•ˆì—ì„œ ëœë¤ ë¸”ëŸ­ì„ ì¥ì• ë¬¼ë¡œ ë°”ê¾¸ëŠ”í•¨ìˆ˜
 	public void CreateInterruptBlock()
 	{
 		int x = Random.Range(0, Block.BLOCK_NUM_X);
@@ -1053,10 +1117,10 @@ public class BlockRoot : MonoBehaviour
 			CreateInterruptBlock();
 		}
 	}
-	//Range¹üÀ§¾È¿¡¼­ ·£´ı ºí·°À» ÇÇ¹ö¾ÆÀÌÅÛ ¹Ù²Ù´ÂÇÔ¼ö//20230511
+	//Rangeë²”ìœ„ì•ˆì—ì„œ ëœë¤ ë¸”ëŸ­ì„ í”¼ë²„ì•„ì´í…œ ë°”ê¾¸ëŠ”í•¨ìˆ˜//20230511
 	public void CreateFeverBlock()
 	{
-		for (int i = 0; i < 3; i++)//¿©±â¿¡ if¹® ³Ö¾î¼­ ±× 2,3½ºÅ×ÀÌÁö Åõ¸íºí·°Àº Á¦¿ÜÇÏ¸é µÉµí?
+		for (int i = 0; i < 3; i++)//ì—¬ê¸°ì— ifë¬¸ ë„£ì–´ì„œ ê·¸ 2,3ìŠ¤í…Œì´ì§€ íˆ¬ëª…ë¸”ëŸ­ì€ ì œì™¸í•˜ë©´ ë ë“¯?
 		{
 			int x = Random.Range(0, Block.BLOCK_NUM_X);
 			int y = Random.Range(0, Block.BLOCK_NUM_Y);
@@ -1071,7 +1135,7 @@ public class BlockRoot : MonoBehaviour
 		}
 		
 	}
-	//BlockRoot¿¡¼­ Àå¾Ö¹°À» Áö¿ì´Â ÇÔ¼ö
+	//BlockRootì—ì„œ ì¥ì• ë¬¼ì„ ì§€ìš°ëŠ” í•¨ìˆ˜
 	public void DestroyInterruptBlock(BlockControl block)
 	{
 		if (block.i_pos.x + 1 < Block.BLOCK_NUM_X && blocks[block.i_pos.x + 1, block.i_pos.y].color == Block.COLOR.Obstacle)
@@ -1094,12 +1158,12 @@ public class BlockRoot : MonoBehaviour
 	public void SetWall()
 	{
 		for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
-		{ // Ã³À½ÇàºÎÅÍ ½ÃÀÛÇàºÎÅÍ ¸¶Áö¸·Çà±îÁö.
+		{ // ì²˜ìŒí–‰ë¶€í„° ì‹œì‘í–‰ë¶€í„° ë§ˆì§€ë§‰í–‰ê¹Œì§€.
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 			{
 				if (stagenum.NowStage() == 2)
 				{
-					//Á¦ÀÏ ¿À¸¥ÂÊ ¾Æ·¡
+					//ì œì¼ ì˜¤ë¥¸ìª½ ì•„ë˜
 					if (x > 5 && y == 0)
 					{
 						blocks[x, y].setColor(Block.COLOR.Wall);
@@ -1115,7 +1179,7 @@ public class BlockRoot : MonoBehaviour
 						blocks[x, y].setColor(Block.COLOR.Wall);
 					}
 
-					//Á¦ÀÏ ¿ŞÂÊ ¾Æ·¡
+					//ì œì¼ ì™¼ìª½ ì•„ë˜
 					if (x < 3 && y == 0)
 					{
 						blocks[x, y].setColor(Block.COLOR.Wall);
@@ -1132,7 +1196,7 @@ public class BlockRoot : MonoBehaviour
 					}
 
 
-					////Á¦ÀÏ ¿À¸¥ÂÊ À§
+					////ì œì¼ ì˜¤ë¥¸ìª½ ìœ„
 					if (x > 5 && y == 8)
 					{
 						blocks[x, y].color = Block.COLOR.Wall;
@@ -1152,7 +1216,7 @@ public class BlockRoot : MonoBehaviour
 						blocks[x, y].color = Block.COLOR.Wall;
 					}
 
-					////Á¦ÀÏ ¿ŞÂÊ ¾Æ·¡
+					////ì œì¼ ì™¼ìª½ ì•„ë˜
 					if (x < 3 && y == 8)
 					{
 						blocks[x, y].setColor(Block.COLOR.Wall);
@@ -1199,7 +1263,7 @@ public class BlockRoot : MonoBehaviour
 	public void CheckWall()
 	{
 		for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
-		{ // Ã³À½ÇàºÎÅÍ ½ÃÀÛÇàºÎÅÍ ¸¶Áö¸·Çà±îÁö.
+		{ // ì²˜ìŒí–‰ë¶€í„° ì‹œì‘í–‰ë¶€í„° ë§ˆì§€ë§‰í–‰ê¹Œì§€.
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 			{
 				if (this.blocks[x, y].color == Block.COLOR.Wall)
@@ -1210,6 +1274,178 @@ public class BlockRoot : MonoBehaviour
 				}
 			}
 		}
+	}
+
+	//ë¸”ëŸ­ì„ ë‹¤ì‹œ ë˜ëŒë¦¬ëŠ” ì½”ë£¨í‹´ ë”œë ˆì´ 0.3ì´ˆë¥¼ ì£¼ê³  sawpblockí•¨ìˆ˜ë¥¼ ë‹¤ì‹œ í˜¸ì¶œí–ˆë‹¤. 2023 05 26
+	IEnumerator returnBlock(BlockControl block0, Block.DIR4 dir, BlockControl block1)
+	{
+		yield return new WaitForSeconds(0.3f);
+
+		swapBlock(block0, dir, block1);
+	}
+
+
+	public bool CheckStartBlock(BlockControl start)
+	{
+		bool ret = false;
+		int normal_block_num = 0;
+
+		// ì¸ìˆ˜ì¸ ë¸”ë¡ì´ ë°œí™” í›„ê°€ ì•„ë‹ˆë©´.
+		if (!start.isVanishing())
+		{
+			normal_block_num = 1;
+		}
+		// ê·¸ë¦¬ë“œ ì¢Œí‘œë¥¼ ê¸°ì–µí•´ ë‘”ë‹¤.
+		int rx = start.i_pos.x;
+		int lx = start.i_pos.x;
+		// ë¸”ë¡ì˜ ì™¼ìª½ì„ ê²€ì‚¬.
+		for (int x = lx - 1; x >= 0; x--)
+		{
+			BlockControl next_block = this.blocks[x, start.i_pos.y];
+			if (start.color == Block.COLOR.Obstacle)
+			{
+				break;
+			}
+			if (start.color == Block.COLOR.Wall)
+			{
+				break;
+			}
+
+			if (next_block.color != start.color)
+			{ // ìƒ‰ì´ ë‹¤ë¥´ë©´.
+				break; // ë£¨í”„ íƒˆì¶œ.
+			}
+
+			if (!next_block.isVanishing())
+			{ // ë°œí™” ì¤‘ì´ ì•„ë‹ˆë©´.
+				normal_block_num++; // ê²€ì‚¬ìš© ì¹´ìš´í„°ë¥¼ ì¦ê°€.
+			}
+			lx = x;
+		}
+		// ë¸”ë¡ì˜ ì˜¤ë¥¸ìª½ì„ ê²€ì‚¬.
+		for (int x = rx + 1; x < Block.BLOCK_NUM_X; x++)
+		{
+			BlockControl next_block = this.blocks[x, start.i_pos.y];
+			if (start.color == Block.COLOR.Obstacle)
+			{
+				break;
+			}
+			if (start.color == Block.COLOR.Wall)
+			{
+				break;
+			}
+			if (next_block.color != start.color)
+			{
+				break;
+			}
+
+			if (!next_block.isVanishing())
+			{
+
+				normal_block_num++;
+			}
+			rx = x;
+		}
+		do
+		{
+			// ì˜¤ë¥¸ìª½ ë¸”ë¡ì˜ ê·¸ë¦¬ë“œ ë²ˆí˜¸ - ì™¼ìª½ ë¸”ë¡ì˜ ê·¸ë¦¬ë“œ ë²ˆí˜¸ +.
+			// ì¤‘ì•™ ë¸”ë¡(1)ì„ ë”í•œ ìˆ˜ê°€ 3ë¯¸ë§Œ ì´ë©´.
+			if (rx - lx + 1 < 3)
+			{
+				break; // ë£¨í”„ íƒˆì¶œ.
+			}
+
+			if (normal_block_num == 0)
+			{ // ë°œí™” ì¤‘ì´ ì•„ë‹Œ ë¸”ë¡ì´ í•˜ë‚˜ë„ ì—†ìœ¼ë©´.
+				break; // ë£¨í”„ íƒˆì¶œ.
+			}
+			
+			if (rx - lx + 1 >= 3)
+			{
+				for (int x = lx; x < rx + 1; x++)
+				{
+					this.blocks[x, start.i_pos.y].color = this.selectBlockColor(); 
+					//ê·¼ì²˜ì— ë°©í•´ë¬¼ì´ ìˆëŠ”ì§€ ê²€ì‚¬
+					ret = true;
+				}
+			}
+		} while (false);
+		normal_block_num = 0;
+		if (!start.isVanishing())
+		{
+			normal_block_num = 1;
+		}
+		int uy = start.i_pos.y;
+		int dy = start.i_pos.y;
+		// ë¸”ë¡ì˜ ìœ„ìª½ì„ ê²€ì‚¬.
+		for (int y = dy - 1; y >= 0; y--)
+		{
+			BlockControl next_block = this.blocks[start.i_pos.x, y];
+			if (start.color == Block.COLOR.Obstacle)
+			{
+				break;
+			}
+			if (start.color == Block.COLOR.Wall)
+			{
+				break;
+			}
+			if (next_block.color != start.color)
+			{
+				break;
+			}
+			if (!next_block.isVanishing())
+			{
+				normal_block_num++;
+			}
+			dy = y;
+		}
+		// ë¸”ë¡ì˜ ì•„ë˜ìª½ì„ ê²€ì‚¬.
+		for (int y = uy + 1; y < Block.BLOCK_NUM_Y; y++)
+		{
+			BlockControl next_block = this.blocks[start.i_pos.x, y];
+			if (start.color == Block.COLOR.Obstacle)
+			{
+				break;
+			}
+			if (start.color == Block.COLOR.Wall)
+			{
+				break;
+			}
+			if (next_block.color != start.color)
+			{
+				break;
+			}
+
+			if (!next_block.isVanishing())
+			{
+				normal_block_num++;
+			}
+			uy = y;
+		}
+		do
+		{
+			if (uy - dy + 1 < 3)
+			{
+				break;
+			}
+			if (normal_block_num == 0)
+			{
+				break;
+			}
+			
+			if (uy - dy + 1 >= 3)
+			{
+				for (int y = dy; y < uy + 1; y++)
+				{
+
+					this.blocks[start.i_pos.x, y].color = this.selectBlockColor(); 
+					ret = true;
+				}
+			}
+		} while (false);
+
+
+		return (ret);
 	}
 
 
