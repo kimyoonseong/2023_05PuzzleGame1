@@ -71,6 +71,9 @@ public class BlockControl : MonoBehaviour
 	public GameObject Bomb; //20230521 4매치 폭탄 
 	public GameObject Match5; //20230521 4매치 폭탄
 	public GameObject FeverBomb; //20230521 4매치 폭탄
+	public GameObject Obstacle; //20230521 4매치 폭탄
+								
+
 	public Block.COLOR color = (Block.COLOR)0; // 블록 색.
 	public Block.COLOR pop5Color = (Block.COLOR)(-1); //20230510 5매치 블록색저장 클래스.
 	
@@ -102,6 +105,7 @@ public class BlockControl : MonoBehaviour
 
 	void Start()
 	{
+		this.transform.localScale = new Vector3(0.5f, 0.5f, 0.4f);
 		this.setColor(this.color); // 색을 칠한다.
 
 		this.next_step = Block.STEP.IDLE; // 다음 블록을 대기 중으로.
@@ -295,7 +299,10 @@ public class BlockControl : MonoBehaviour
 		{ // 칠할 색에 따라서 분기한다.
 			default:
 			case Block.COLOR.PINK:
+				//block[0].GetComponent<Renderer>().material.SetFloat("Color", 1);
 				color_value = new Color(1.0f, 0.5f, 0.5f);
+
+				Obstacle.SetActive(false);
 				Bomb.SetActive(false);
 				Match5.SetActive(false);
 				FeverBomb.SetActive(false);
@@ -303,61 +310,74 @@ public class BlockControl : MonoBehaviour
 			case Block.COLOR.BLUE:
 				
 				color_value = Color.blue;
+				Obstacle.SetActive(false);
 				Bomb.SetActive(false);
 				Match5.SetActive(false);
 				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.YELLOW:
 				color_value = Color.yellow;
-
+				Obstacle.SetActive(false);
 				Bomb.SetActive(false);
 				Match5.SetActive(false);
 				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.GREEN:
 				color_value = Color.green;
+				Obstacle.SetActive(false);
 				Bomb.SetActive(false);
 				Match5.SetActive(false);
 				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.MAGENTA:
 				color_value = Color.magenta;
+
+				Obstacle.SetActive(false);
 				Bomb.SetActive(false);
 				Match5.SetActive(false);
 				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.ORANGE:
 				color_value = new Color(1.0f, 0.46f, 0.0f);
+
+
+				Obstacle.SetActive(false);
 				Bomb.SetActive(false);
 				Match5.SetActive(false);
 				FeverBomb.SetActive(false);
 				break;
 			case Block.COLOR.Bomb://2023 0510 bomb 컬러 추가
+
 				GetComponent<MeshRenderer>().enabled = false;
-				//Match5.SetActive(false);
-				//FeverBomb.SetActive(false);
+				
 				Bomb.SetActive(true);
+				Match5.SetActive(false);
+				FeverBomb.SetActive(false);
+				Obstacle.SetActive(false);
 				color_value = Color.red;
 				break;
 			case Block.COLOR.POP5://2023 0510 bomb 컬러 추가
 				GetComponent<MeshRenderer>().enabled = false;
-				color_value = Color.white;
-				//Bomb.SetActive(false);
-				//FeverBomb.SetActive(false);
+				color_value = Color.blue;
+				Bomb.SetActive(false);
 				Match5.SetActive(true);
+				FeverBomb.SetActive(false);
+				Obstacle.SetActive(false);
 				break;
 			case Block.COLOR.Obstacle://2023 0510 bomb 컬러 추가
-
+				GetComponent<MeshRenderer>().enabled = false;
 				color_value = Color.black;
+				Obstacle.SetActive(true);
 				Bomb.SetActive(false);
 				FeverBomb.SetActive(false);
 				Match5.SetActive(false);
 				break;
 			case Block.COLOR.FeverItem://20230511 FEVER BOMB추가
 				GetComponent<MeshRenderer>().enabled = false;
-				//Bomb.SetActive(false);
+				Bomb.SetActive(false);
+				Match5.SetActive(false);
 				FeverBomb.SetActive(true);
-				//Match5.SetActive(false);
+				Obstacle.SetActive(false);
 				color_value = new Color(0.7f, 0.3f, 1.0f);
 				break;
 			case Block.COLOR.Wall://20230511 투명벽 추가

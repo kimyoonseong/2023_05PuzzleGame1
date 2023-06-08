@@ -1,9 +1,11 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
+
 
 public class BlockRoot : MonoBehaviour
 {
-	
+
 	//public GameObject BombPrefab = null;//4매치 폭탄 블록
 	public GameObject BlockPrefab = null; // 만들어 낼 블록의 프리팹.
 	public BlockControl[,] blocks; // 그리드.
@@ -19,6 +21,13 @@ public class BlockRoot : MonoBehaviour
 
 	private bool check1 = true;
 
+	private bool cantchange = true;
+
+	public float FeverTimer = 5.0f;
+	private int IntteruptCount = 0;
+
+	public Text FeverText;
+
 	//class변수추가
 	private SceneControl stagenum;
 
@@ -29,11 +38,6 @@ public class BlockRoot : MonoBehaviour
 	public AudioClip Bomb5sound;
 	public AudioClip CollectSound;
 	public AudioClip FeverSound;
-	public bool isCounted;
-	public bool isCounted2;
-	public bool isCounted3;
-	public bool isCounted4;
-	public bool isCounted5;
 	private bool isInputEnabled = true;
 	void Start()
 	{
@@ -43,11 +47,7 @@ public class BlockRoot : MonoBehaviour
 		stagenum = GameObject.Find("GameRoot").GetComponent<SceneControl>();
 
 		this.BlockChangeaudio = this.gameObject.AddComponent<AudioSource>();
-		isCounted = false;
-		isCounted2 = false;
-		isCounted3 = false;
-		isCounted4 = false;
-		isCounted5 = false;
+
 
 	}
 
@@ -72,19 +72,20 @@ public class BlockRoot : MonoBehaviour
 			}
 		}
 
+		FeverText.text = "피버 남은시간 : " + Mathf.CeilToInt(FeverTimer).ToString() + "초";
+
 		check1 = false;
 
 		if (this.grabbed_block == null)
 		{ // 블록을 잡지 않았을 때.
 			if (!this.is_has_falling_block())
 			{
-				if (Input.GetMouseButtonDown(0)&&isInputEnabled)
+				if (Input.GetMouseButtonDown(0) && isInputEnabled)
 				{ // 마우스 버튼이 눌렸다면.
 				  // blocks 배열의 모든 요소를 차례로 처리한다.
 
 					foreach (BlockControl block in this.blocks)
 					{
-						
 						if (!block.isGrabbable())
 						{ // 블록을 잡을 수 없으면.
 							continue; // 다음 블록으로.
@@ -98,80 +99,61 @@ public class BlockRoot : MonoBehaviour
 						//Debug.Log(block.pop5Color);
 						if (block.color == Block.COLOR.Bomb)//20230510 4매치폭탄 눌렸을때
 						{
-								
-
-
-								Debug.Log(isCounted);
-								this.BlockChangeaudio.clip = this.Bomb4sound;
-								this.BlockChangeaudio.loop = false;
-								BlockChangeaudio.PlayOneShot(Bomb4sound);
-								for (int x = 0; x < Block.BLOCK_NUM_X; x++)
+							Debug.Log(block.step);
+							this.BlockChangeaudio.clip = this.Bomb4sound;
+							this.BlockChangeaudio.loop = false;
+							BlockChangeaudio.PlayOneShot(Bomb4sound);
+							for (int x = 0; x < Block.BLOCK_NUM_X; x++)
+							{
+								if (blocks[x, block.i_pos.y].color != Block.COLOR.Wall)
 								{
-									if (blocks[x, block.i_pos.y].color != Block.COLOR.Wall)
+
+									this.blocks[x, block.i_pos.y].toVanishing();
+									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
 									{
-											
-										this.blocks[x, block.i_pos.y].toVanishing();
-									//if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
-									//{
-									//	continue;//
-									//}
-										Debug.Log(blocks[x, block.i_pos.y].step);
-										score_counter.ColorDiffCheck(blocks[x, block.i_pos.y].color);
-											
+										continue;//
 									}
+									score_counter.ColorDiffCheck(blocks[x, block.i_pos.y].color);
 								}
-								isCounted = true;
-								for (int y = block.i_pos.y + 1; y < Block.BLOCK_NUM_Y; y++)
+							}
+
+							for (int y = block.i_pos.y + 1; y < Block.BLOCK_NUM_Y; y++)
+							{
+								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
 								{
-									if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
+									this.blocks[block.i_pos.x, y].toVanishing();
+									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
 									{
-
-										this.blocks[block.i_pos.x, y].toVanishing();
-
-										
-										score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
-
-										
-										//isCounted2 = true;
-										
+										continue;//
 									}
-
-
+									score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
+									//Debug.Log(blocks[block.i_pos.x, y].color);
 								}
-								isCounted2 = true;
-								for (int y = 0; y < block.i_pos.y; y++)
+
+
+							}
+							for (int y = 0; y < block.i_pos.y; y++)
+							{
+								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
 								{
-									if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
+									this.blocks[block.i_pos.x, y].toVanishing();
+									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
 									{
-
-
-										
-										this.blocks[block.i_pos.x, y].toVanishing();
-											
-										score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
-										
-										//if (block.next_step == Block.STEP.VACANT)//발화중에 누르면 계속 점수 카운트 되는거 수정
-										//{
-										//	continue;//
-										//}
-										//block.step = Block.STEP.VACANT;
-										//isCounted3 = true;
-
-
-										
-										//Debug.Log(blocks[block.i_pos.x, y].color);
+										continue;//
 									}
+									score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
+									//Debug.Log(blocks[block.i_pos.x, y].color);
 								}
+							}
 							isInputEnabled = false;
 							Invoke("EnableInput", 0.5f);
-                            if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
-                            {
-                                continue;//
-                            }
+							if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
+							{
+								continue;//
+							}
+							this.score_counter.DiffBlockCount(2);//20230511점수카운트
 
-                            
-                        }
-						
+						}
 						else if (block.color == Block.COLOR.POP5)//20230510 5매치폭탄 눌렸을때
 						{
 							Debug.Log(block.pop5Color);
@@ -182,12 +164,32 @@ public class BlockRoot : MonoBehaviour
 							{
 								if (block.pop5Color == block2.color)
 								{
-									
-									block2.toVanishing();
-									
-									score_counter.ColorDiffCheck(block.pop5Color);
-									
+									//Debug.Log(block.pop5Color);
 
+									block2.toVanishing();
+
+									score_counter.ColorDiffCheck(block.pop5Color);
+									//if (block.pop5Color == Block.COLOR.PINK)//5매치가 핑크색이면 핑크색 차감
+									//{
+									//    score_counter.last.pink -= 1;
+									//}
+									//else if (block.pop5Color == Block.COLOR.BLUE)
+									//{
+									//    score_counter.last.blue -= 1;
+									//}
+									//else if (block.pop5Color == Block.COLOR.GREEN)
+									//{
+									//    score_counter.last.green -= 1;
+									//    Debug.Log("실행수");
+									//}
+									//else if (block.pop5Color == Block.COLOR.MAGENTA)
+									//{
+									//    score_counter.last.magenta -= 1;
+									//}
+									//else if (block.pop5Color == Block.COLOR.ORANGE)
+									//{
+									//    score_counter.last.orange -= 1;
+									//}
 								}
 							}
 							this.blocks[block.i_pos.x, block.i_pos.y].toVanishing();
@@ -211,11 +213,10 @@ public class BlockRoot : MonoBehaviour
 											if (blocks[block.i_pos.x + i, block.i_pos.y + j].color != Block.COLOR.Wall)
 											{
 												this.blocks[block.i_pos.x + i, block.i_pos.y + j].toVanishing();
-												
+
 												score_counter.ColorDiffCheck(blocks[block.i_pos.x + i, block.i_pos.y + j].color);
 												//}
-												isCounted5 = true;
-
+											
 
 												//Debug.Log(this.blocks[block.i_pos.x + i, block.i_pos.y + j]);
 											}
@@ -225,7 +226,6 @@ public class BlockRoot : MonoBehaviour
 
 								}
 							}
-							
 							isInputEnabled = false;
 							Invoke("EnableInput", 0.5f);
 							if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
@@ -270,6 +270,12 @@ public class BlockRoot : MonoBehaviour
 				{
 					break; // 루프 탈출. 
 				}
+
+				if (is_has_sliding_block())
+				{
+					break;
+				}
+
 				//  현재 위치에서 슬라이드할 곳까지의 거리를 구한다.
 				float offset = this.grabbed_block.calcDirOffset(
 					mouse_position_xy, this.grabbed_block.slide_dir);
@@ -297,10 +303,14 @@ public class BlockRoot : MonoBehaviour
 					break;
 				}
 
-				// 블록을 교체한다.
-				this.swapBlock(
-					grabbed_block, grabbed_block.slide_dir, swap_target);
-				//Debug.Log(grabbed_block);
+
+				if (cantchange)
+				{
+					// 블록을 교체한다.
+					this.swapBlock(
+						grabbed_block, grabbed_block.slide_dir, swap_target);
+					//Debug.Log(grabbed_block);
+				}
 
 
 				//bool check 변수 만들기 20230506
@@ -311,30 +321,32 @@ public class BlockRoot : MonoBehaviour
 				foreach (BlockControl block in this.blocks)
 				{
 
-					if (this.checkConnection(block))			//3매치블록이 겹치는경우
+					if (this.checkConnection(block))            //3매치블록이 겹치는경우
 					{
 						this.BlockChangeaudio.clip = this.CollectSound;
 						this.BlockChangeaudio.PlayDelayed(0.2f);
 						//BlockChangeaudio.PlayOneShot(CollectSound);
 						this.score_counter.DiffBlockCount(match_count1); //매치된 보석수 scorecounter스크립트 함수에 삽입 20230504
-						this.score_counter.ComboCount(0, true);		//콤보카운트 변경
+						this.score_counter.ComboCount(0, true);     //콤보카운트 변경
 						checkcheck = false;     //check check를 false로 변경
-						for(int i = 1; i < 9; i++)
-                        {
-							if (this.score_counter.last.combo == 7*i)
+						for (int i = 1; i < 9; i++)
+						{
+							if (this.score_counter.last.combo == 7 * i)
 							{
 								BlockChangeaudio.PlayOneShot(FeverSound);
 								CreateFeverBlock();
 							}
 						}
-                        
+						FeverTimer = 5.0f;
+
+
 						break;
-						
+
 					}
-					
+
 				}
 
-				if(checkcheck)		//checkcheck가 그대로 true일경우 3매치가 되지않았다는뜻이므로
+				if (checkcheck)     //checkcheck가 그대로 true일경우 3매치가 되지않았다는뜻이므로
 				{
 					CreateInterruptBlock();
 
@@ -342,6 +354,9 @@ public class BlockRoot : MonoBehaviour
 
 					//combo 초기화
 					this.score_counter.ComboCount(0, false);
+
+
+
 				}
 
 
@@ -358,7 +373,7 @@ public class BlockRoot : MonoBehaviour
 			{ // 마우스 버튼이 눌려져 있지 않으면.
 				this.grabbed_block.endGrab(); // 블록을 놓았을 때의 처리를 실행.
 				this.grabbed_block = null; //  grabbed_block을 비게 설정.
-				
+
 			}
 		}
 
@@ -374,6 +389,8 @@ public class BlockRoot : MonoBehaviour
 			int match_count = 1; // 매치된 보석 수 20230504
 			int ignite_count = 0; // 발화 수.
 								  // 그리드 안의 모든 블록에 대해서 처리.
+
+			cantchange = true;
 			foreach (BlockControl block in this.blocks)
 			{
 				if (!block.isIdle())
@@ -390,12 +407,18 @@ public class BlockRoot : MonoBehaviour
 					ignite_count++; // 발화 수를 증가.
 									//combo_count++;  //20230504 콤보 증가            
 									//Debug.Log(block);
-					//this.score_counter.ComboCount(combo_count, true);
+									//this.score_counter.ComboCount(combo_count, true);
 					this.score_counter.DiffBlockCount(match_count);//매치된 보석수 scorecounter스크립트 함수에 삽입 20230504
 				}
 
 
 			}
+
+			if (score_counter.last.combo != 0)
+			{
+				ComboTimer();
+			}
+
 			if (ignite_count > 0)
 			{ // 발화 수가 0보다 크면.
 
@@ -424,7 +447,7 @@ public class BlockRoot : MonoBehaviour
 					}
 				}
 			}
-			
+
 		}
 
 		// 하나라도 연소 중인 블록이 있는가?.
@@ -602,7 +625,7 @@ public class BlockRoot : MonoBehaviour
 				{
 					// 그리드 안이라면.
 					next_block = this.blocks[block.i_pos.x + 1, block.i_pos.y];
-					next_block.color = this.blocks[block.i_pos.x + 1, block.i_pos.y].color;		//다음블럭 색변환
+					next_block.color = this.blocks[block.i_pos.x + 1, block.i_pos.y].color;     //다음블럭 색변환
 				}
 				break;
 
@@ -691,12 +714,12 @@ public class BlockRoot : MonoBehaviour
 		BlockChangeaudio.PlayOneShot(BlockChangeSound);
 	}
 
-	
-	public bool checkConnection(BlockControl start)  
+
+	public bool checkConnection(BlockControl start)
 	{
 		bool ret = false;
 		int normal_block_num = 0;
-		
+
 		// 인수인 블록이 발화 후가 아니면.
 		if (!start.isVanishing())
 		{
@@ -709,10 +732,10 @@ public class BlockRoot : MonoBehaviour
 		for (int x = lx - 1; x >= 0; x--)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.y];
-            if (start.color == Block.COLOR.Obstacle)
-            {
+			if (start.color == Block.COLOR.Obstacle)
+			{
 				break;
-            }
+			}
 			if (start.color == Block.COLOR.Wall)
 			{
 				break;
@@ -766,7 +789,7 @@ public class BlockRoot : MonoBehaviour
 			}
 			if (!next_block.isVanishing())
 			{
-				
+
 				normal_block_num++;
 			}
 			rx = x;
@@ -779,7 +802,7 @@ public class BlockRoot : MonoBehaviour
 			{
 				break; // 루프 탈출.
 			}
-			
+
 			if (normal_block_num == 0)
 			{ // 발화 중이 아닌 블록이 하나도 없으면.
 				break; // 루프 탈출.
@@ -791,43 +814,43 @@ public class BlockRoot : MonoBehaviour
 					// 나열된 같은 색 블록을 발화 상태로.
 					this.blocks[x, start.i_pos.y].toVanishing();
 					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 색상확인해서 차감
-					//score_counter.
+																					  //score_counter.
 					ret = true;
 				}
-				for (int x = start.i_pos.x+1; x < rx + 1; x++)
+				for (int x = start.i_pos.x + 1; x < rx + 1; x++)
 				{
 					// 나열된 같은 색 블록을 발화 상태로.
 					this.blocks[x, start.i_pos.y].toVanishing();
 					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 색상확인해서 차감
 					ret = true;
 				}
-				
+
 				score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, start.i_pos.y].color);//20230523 이렇게되면 3개만 지워지니깐,
 
 
 				this.blocks[start.i_pos.x, start.i_pos.y].color = Block.COLOR.Bomb;
-				
+
 
 			}
 			else if (rx - lx + 1 == 5)//20230510 5매치 일때  움직인 블록 제외 다 터뜨리는 for문
-            {
-                //Debug.Log("5매치 실행");
-                for (int x = lx; x < start.i_pos.x; x++)
-                {
-                    // 나열된 같은 색 블록을 발화 상태로.
-                    score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 색상확인해서 차감
-                    this.blocks[x, start.i_pos.y].toVanishing();
-                    ret = true;
-                }
-                for (int x = start.i_pos.x + 1; x < rx + 1; x++)
-                {
-                    // 나열된 같은 색 블록을 발화 상태로.
-                    score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 색상확인해서 차감
-                    this.blocks[x, start.i_pos.y].toVanishing();
-                    ret = true;
-                }
-            
-                score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, start.i_pos.y].color);//20230523이렇게하면 4개만 지워지니깐.
+			{
+				//Debug.Log("5매치 실행");
+				for (int x = lx; x < start.i_pos.x; x++)
+				{
+					// 나열된 같은 색 블록을 발화 상태로.
+					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 색상확인해서 차감
+					this.blocks[x, start.i_pos.y].toVanishing();
+					ret = true;
+				}
+				for (int x = start.i_pos.x + 1; x < rx + 1; x++)
+				{
+					// 나열된 같은 색 블록을 발화 상태로.
+					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 색상확인해서 차감
+					this.blocks[x, start.i_pos.y].toVanishing();
+					ret = true;
+				}
+
+				score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, start.i_pos.y].color);//20230523이렇게하면 4개만 지워지니깐.
 				this.blocks[start.i_pos.x, start.i_pos.y].pop5Color = this.blocks[start.i_pos.x, start.i_pos.y].color;//pop5color는 색을 저장
 				this.blocks[start.i_pos.x, start.i_pos.y].color = Block.COLOR.POP5;
 				//Debug.Log(this.blocks[start.i_pos.x, start.i_pos.y].pop5Color);
@@ -886,7 +909,7 @@ public class BlockRoot : MonoBehaviour
 			dy = y;
 		}
 		// 블록의 아래쪽을 검사.
-		for (int y = uy + 1; y < Block.BLOCK_NUM_Y; y++) 
+		for (int y = uy + 1; y < Block.BLOCK_NUM_Y; y++)
 		{
 			BlockControl next_block = this.blocks[start.i_pos.x, y];
 			if (start.color == Block.COLOR.Obstacle)
@@ -929,7 +952,7 @@ public class BlockRoot : MonoBehaviour
 			}
 			if (uy - dy + 1 == 4)
 			{
-				
+
 				for (int y = dy; y < start.i_pos.y; y++) //20230510 4매치 일때  움직인 블록 제외 다 터뜨리는 for문
 				{
 					//밑부분 발화
@@ -948,11 +971,11 @@ public class BlockRoot : MonoBehaviour
 				this.blocks[start.i_pos.x, start.i_pos.y].color = Block.COLOR.Bomb;
 				this.blocks[start.i_pos.y, start.i_pos.y].step = Block.STEP.FALL;
 			}
-			else if(uy - dy + 1 == 5)
+			else if (uy - dy + 1 == 5)
 			{
 				//Block.COLOR co = this.blocks[start.i_pos.x, start.i_pos.y].color;
 				score_counter.ColorDiffCheck(start.color);
-				this.blocks[start.i_pos.x, start.i_pos.y-2].pop5Color = start.color;
+				this.blocks[start.i_pos.x, start.i_pos.y - 2].pop5Color = start.color;
 				start.color = Block.COLOR.POP5;
 				//this.blocks[start.i_pos.y, start.i_pos.y].step = Block.STEP.FALL;
 				//Debug.Log(start.pop5Color);
@@ -970,7 +993,7 @@ public class BlockRoot : MonoBehaviour
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
 				}
-				
+
 			}
 			else
 			{
@@ -985,7 +1008,7 @@ public class BlockRoot : MonoBehaviour
 			}
 		} while (false);
 
-		
+
 		return (ret);
 	}
 
@@ -1118,14 +1141,19 @@ public class BlockRoot : MonoBehaviour
 	{
 		int x = Random.Range(0, Block.BLOCK_NUM_X);
 		int y = Random.Range(0, Block.BLOCK_NUM_Y);
-		if (blocks[x, y].color != Block.COLOR.Wall)
+
+		if (IntteruptCount < 5)
 		{
-			blocks[x, y].setColor(Block.COLOR.Obstacle);
-		}
-		else
-		{
-			Debug.Log("check");
-			CreateInterruptBlock();
+			if (blocks[x, y].color != Block.COLOR.Wall || blocks[x, y].color != Block.COLOR.FeverItem || blocks[x, y].color != Block.COLOR.Bomb || blocks[x, y].color != Block.COLOR.POP5)
+			{
+				blocks[x, y].setColor(Block.COLOR.Obstacle);
+				IntteruptCount++;
+			}
+			else
+			{
+				Debug.Log("check");
+				CreateInterruptBlock();
+			}
 		}
 	}
 	//Range범위안에서 랜덤 블럭을 피버아이템 바꾸는함수//20230511
@@ -1144,7 +1172,7 @@ public class BlockRoot : MonoBehaviour
 				blocks[x, y].setColor(Block.COLOR.FeverItem);
 			}
 		}
-		
+
 	}
 	//BlockRoot에서 장애물을 지우는 함수
 	public void DestroyInterruptBlock(BlockControl block)
@@ -1152,18 +1180,22 @@ public class BlockRoot : MonoBehaviour
 		if (block.i_pos.x + 1 < Block.BLOCK_NUM_X && blocks[block.i_pos.x + 1, block.i_pos.y].color == Block.COLOR.Obstacle)
 		{
 			blocks[block.i_pos.x + 1, block.i_pos.y].toVanishing();
+			IntteruptCount--;
 		}
 		if (block.i_pos.x - 1 >= 0 && blocks[block.i_pos.x - 1, block.i_pos.y].color == Block.COLOR.Obstacle)
 		{
 			blocks[block.i_pos.x - 1, block.i_pos.y].toVanishing();
+			IntteruptCount--;
 		}
 		if (block.i_pos.y + 1 < Block.BLOCK_NUM_X && blocks[block.i_pos.x, block.i_pos.y + 1].color == Block.COLOR.Obstacle)
 		{
 			blocks[block.i_pos.x, block.i_pos.y + 1].toVanishing();
+			IntteruptCount--;
 		}
 		if (block.i_pos.y - 1 >= 0 && blocks[block.i_pos.x, block.i_pos.y - 1].color == Block.COLOR.Obstacle)
 		{
 			blocks[block.i_pos.x, block.i_pos.y - 1].toVanishing();
+			IntteruptCount--;
 		}
 	}
 	public void SetWall()
@@ -1247,7 +1279,7 @@ public class BlockRoot : MonoBehaviour
 
 				if (stagenum.NowStage() == 3)
 				{
-					if (y==3 && x>2 && x < 6)
+					if (y == 3 && x > 2 && x < 6)
 					{
 						blocks[x, y].setColor(Block.COLOR.Wall);
 					}
@@ -1262,7 +1294,7 @@ public class BlockRoot : MonoBehaviour
 						blocks[x, y].setColor(Block.COLOR.Wall);
 					}
 
-					blocks[0,0].setColor(Block.COLOR.Wall);
+					blocks[0, 0].setColor(Block.COLOR.Wall);
 					blocks[8, 0].setColor(Block.COLOR.Wall);
 					blocks[8, 8].setColor(Block.COLOR.Wall);
 					blocks[0, 8].setColor(Block.COLOR.Wall);
@@ -1290,7 +1322,10 @@ public class BlockRoot : MonoBehaviour
 	//블럭을 다시 되돌리는 코루틴 딜레이 0.3초를 주고 sawpblock함수를 다시 호출했다. 2023 05 26
 	IEnumerator returnBlock(BlockControl block0, Block.DIR4 dir, BlockControl block1)
 	{
-		yield return new WaitForSeconds(0.3f);
+		cantchange = false;
+
+		yield return new WaitForSeconds(0.2f);
+
 
 		swapBlock(block0, dir, block1);
 	}
@@ -1370,12 +1405,12 @@ public class BlockRoot : MonoBehaviour
 			{ // 발화 중이 아닌 블록이 하나도 없으면.
 				break; // 루프 탈출.
 			}
-			
+
 			if (rx - lx + 1 >= 3)
 			{
 				for (int x = lx; x < rx + 1; x++)
 				{
-					this.blocks[x, start.i_pos.y].color = this.selectBlockColor(); 
+					this.blocks[x, start.i_pos.y].color = this.selectBlockColor();
 					//근처에 방해물이 있는지 검사
 					ret = true;
 				}
@@ -1443,13 +1478,13 @@ public class BlockRoot : MonoBehaviour
 			{
 				break;
 			}
-			
+
 			if (uy - dy + 1 >= 3)
 			{
 				for (int y = dy; y < uy + 1; y++)
 				{
 
-					this.blocks[start.i_pos.x, y].color = this.selectBlockColor(); 
+					this.blocks[start.i_pos.x, y].color = this.selectBlockColor();
 					ret = true;
 				}
 			}
@@ -1459,9 +1494,20 @@ public class BlockRoot : MonoBehaviour
 		return (ret);
 	}
 
+	public void ComboTimer()
+	{
+		if (FeverTimer > 0)
+		{
+			FeverTimer -= Time.deltaTime;
+		}
+		else
+		{
+			this.score_counter.ComboCount(0, false);
+		}
+	}
 	private void EnableInput()
-    {
+	{
 		isInputEnabled = true;
-    }
+	}
 }
 
