@@ -25,7 +25,7 @@ public class Block
 		GRAY, // 회색.
 
 		NUM, // 색상이 몇 종류인지 나타낸다(=7).
-		FIRST = PINK, // 초기 색상(분홍색).
+		//FIRST = PINK, // 초기 색상(분홍색).
 		LAST = ORANGE, // 마지막 색상(오렌지).
 		NORMAL_COLOR_NUM = GRAY, // 일반 색상(그레이 이외 색)의 수.
 		Bomb,//4매치 폭탄, 검정색

@@ -29,7 +29,12 @@ public class BlockRoot : MonoBehaviour
 	public AudioClip Bomb5sound;
 	public AudioClip CollectSound;
 	public AudioClip FeverSound;
-
+	public bool isCounted;
+	public bool isCounted2;
+	public bool isCounted3;
+	public bool isCounted4;
+	public bool isCounted5;
+	private bool isInputEnabled = true;
 	void Start()
 	{
 		this.main_camera = GameObject.FindGameObjectWithTag("MainCamera");
@@ -38,7 +43,11 @@ public class BlockRoot : MonoBehaviour
 		stagenum = GameObject.Find("GameRoot").GetComponent<SceneControl>();
 
 		this.BlockChangeaudio = this.gameObject.AddComponent<AudioSource>();
-
+		isCounted = false;
+		isCounted2 = false;
+		isCounted3 = false;
+		isCounted4 = false;
+		isCounted5 = false;
 
 	}
 
@@ -69,12 +78,13 @@ public class BlockRoot : MonoBehaviour
 		{ // 블록을 잡지 않았을 때.
 			if (!this.is_has_falling_block())
 			{
-				if (Input.GetMouseButtonDown(0))
+				if (Input.GetMouseButtonDown(0)&&isInputEnabled)
 				{ // 마우스 버튼이 눌렸다면.
 				  // blocks 배열의 모든 요소를 차례로 처리한다.
 
 					foreach (BlockControl block in this.blocks)
 					{
+						
 						if (!block.isGrabbable())
 						{ // 블록을 잡을 수 없으면.
 							continue; // 다음 블록으로.
@@ -84,143 +94,144 @@ public class BlockRoot : MonoBehaviour
 						{
 							continue; // 다음 블록으로.
 						}
-						
+
 						//Debug.Log(block.pop5Color);
 						if (block.color == Block.COLOR.Bomb)//20230510 4매치폭탄 눌렸을때
 						{
-							Debug.Log(block.step);
-							this.BlockChangeaudio.clip = this.Bomb4sound;
-							this.BlockChangeaudio.loop = false;
-							BlockChangeaudio.PlayOneShot(Bomb4sound);
-							for (int x = 0; x < Block.BLOCK_NUM_X; x++)
-							{
-								if (blocks[x, block.i_pos.y].color != Block.COLOR.Wall)
-								{
-
-									this.blocks[x, block.i_pos.y].toVanishing();
-									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
-									{
-										continue;//
-									}
-									score_counter.ColorDiffCheck(blocks[x, block.i_pos.y].color);
-								}
-							}
-							for (int y = block.i_pos.y + 1; y < Block.BLOCK_NUM_Y; y++)
-							{
-								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
-								{
-									this.blocks[block.i_pos.x, y].toVanishing();
-									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
-									{
-										continue;//
-									}
-									score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
-									//Debug.Log(blocks[block.i_pos.x, y].color);
-								}
+								
 
 
-							}
-							for (int y = 0; y < block.i_pos.y; y++)
-							{
-								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
+								Debug.Log(isCounted);
+								this.BlockChangeaudio.clip = this.Bomb4sound;
+								this.BlockChangeaudio.loop = false;
+								BlockChangeaudio.PlayOneShot(Bomb4sound);
+								for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 								{
-									this.blocks[block.i_pos.x, y].toVanishing();
-									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
+									if (blocks[x, block.i_pos.y].color != Block.COLOR.Wall)
 									{
-										continue;//
+											
+										this.blocks[x, block.i_pos.y].toVanishing();
+									//if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
+									//{
+									//	continue;//
+									//}
+										Debug.Log(blocks[x, block.i_pos.y].step);
+										score_counter.ColorDiffCheck(blocks[x, block.i_pos.y].color);
+											
 									}
-									score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
-									//Debug.Log(blocks[block.i_pos.x, y].color);
 								}
-							}
-							if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
-							{
-								continue;//
-							}
-							this.score_counter.DiffBlockCount(2);//20230511점수카운트
-							
-						}
-						else if(block.color == Block.COLOR.POP5)//20230510 5매치폭탄 눌렸을때
-                        {
+								isCounted = true;
+								for (int y = block.i_pos.y + 1; y < Block.BLOCK_NUM_Y; y++)
+								{
+									if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
+									{
+
+										this.blocks[block.i_pos.x, y].toVanishing();
+
+										
+										score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
+
+										
+										//isCounted2 = true;
+										
+									}
+
+
+								}
+								isCounted2 = true;
+								for (int y = 0; y < block.i_pos.y; y++)
+								{
+									if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
+									{
+
+
+										
+										this.blocks[block.i_pos.x, y].toVanishing();
+											
+										score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
+										
+										//if (block.next_step == Block.STEP.VACANT)//발화중에 누르면 계속 점수 카운트 되는거 수정
+										//{
+										//	continue;//
+										//}
+										//block.step = Block.STEP.VACANT;
+										//isCounted3 = true;
+
+
+										
+										//Debug.Log(blocks[block.i_pos.x, y].color);
+									}
+								}
+							isInputEnabled = false;
+							Invoke("EnableInput", 0.5f);
+                            if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
+                            {
+                                continue;//
+                            }
+
+                            
+                        }
+						
+						else if (block.color == Block.COLOR.POP5)//20230510 5매치폭탄 눌렸을때
+						{
 							Debug.Log(block.pop5Color);
 							this.BlockChangeaudio.clip = this.Bomb5sound;
 							this.BlockChangeaudio.loop = false;
 							BlockChangeaudio.PlayOneShot(Bomb5sound);
 							foreach (BlockControl block2 in this.blocks)
-                            {
+							{
 								if (block.pop5Color == block2.color)
 								{
-									//Debug.Log(block.pop5Color);
 									
 									block2.toVanishing();
-									if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
-									{
-										continue;//
-									}
+									
 									score_counter.ColorDiffCheck(block.pop5Color);
-                                    //if (block.pop5Color == Block.COLOR.PINK)//5매치가 핑크색이면 핑크색 차감
-                                    //{
-                                    //    score_counter.last.pink -= 1;
-                                    //}
-                                    //else if (block.pop5Color == Block.COLOR.BLUE)
-                                    //{
-                                    //    score_counter.last.blue -= 1;
-                                    //}
-                                    //else if (block.pop5Color == Block.COLOR.GREEN)
-                                    //{
-                                    //    score_counter.last.green -= 1;
-                                    //    Debug.Log("실행수");
-                                    //}
-                                    //else if (block.pop5Color == Block.COLOR.MAGENTA)
-                                    //{
-                                    //    score_counter.last.magenta -= 1;
-                                    //}
-                                    //else if (block.pop5Color == Block.COLOR.ORANGE)
-                                    //{
-                                    //    score_counter.last.orange -= 1;
-                                    //}
-                                }
+									
+
+								}
 							}
 							this.blocks[block.i_pos.x, block.i_pos.y].toVanishing();
-							
-							this.score_counter.DiffBlockCount(3);
-							
+
+							isInputEnabled = false;
+							Invoke("EnableInput", 0.5f);
+
 						}
 						else if (block.color == Block.COLOR.FeverItem)//20230511 피버모드 아이템
-                        {
-							
-							for(int i = -1; i < 2; i++)
-                            {
+						{
+
+							for (int i = -1; i < 2; i++)
+							{
 								for (int j = -1; j < 2; j++)
-                                {
-									 
-										if (block.i_pos.x+i< Block.BLOCK_NUM_X && block.i_pos.x+i>=0)
+								{
+
+									if (block.i_pos.x + i < Block.BLOCK_NUM_X && block.i_pos.x + i >= 0)
+									{
+										if (block.i_pos.y + j < Block.BLOCK_NUM_Y && block.i_pos.y + j >= 0)
 										{
-											if(block.i_pos.y + j < Block.BLOCK_NUM_Y && block.i_pos.y + j >= 0)
-                                            {
-												if (blocks[block.i_pos.x + i, block.i_pos.y + j].color != Block.COLOR.Wall)
-												{
-													this.blocks[block.i_pos.x + i, block.i_pos.y + j].toVanishing();
-													if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
-													{
-														continue;//
-													}
-													score_counter.ColorDiffCheck(blocks[block.i_pos.x + i, block.i_pos.y + j].color);
-													
-													
-												//Debug.Log(this.blocks[block.i_pos.x + i, block.i_pos.y + j]);
-												}
+											if (blocks[block.i_pos.x + i, block.i_pos.y + j].color != Block.COLOR.Wall)
+											{
+												this.blocks[block.i_pos.x + i, block.i_pos.y + j].toVanishing();
 												
-											}											
+												score_counter.ColorDiffCheck(blocks[block.i_pos.x + i, block.i_pos.y + j].color);
+												//}
+												isCounted5 = true;
+
+
+												//Debug.Log(this.blocks[block.i_pos.x + i, block.i_pos.y + j]);
+											}
+
 										}
-									
+									}
+
 								}
-                            }
+							}
+							
+							isInputEnabled = false;
+							Invoke("EnableInput", 0.5f);
 							if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
 							{
 								continue;//
 							}
-							this.score_counter.DiffBlockCount(3);//20230511점수카운트
 						}
 						// 처리 중인 블록을 grabbed_block에 등록.
 						this.grabbed_block = block;
@@ -494,7 +505,7 @@ public class BlockRoot : MonoBehaviour
 		// 블록의 색 번호.
 		int color_index = 0;
 
-		Block.COLOR color = Block.COLOR.FIRST;
+		Block.COLOR color = Block.COLOR.PINK;
 
 
 		for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
@@ -1077,7 +1088,7 @@ public class BlockRoot : MonoBehaviour
 	}
 	public Block.COLOR selectBlockColor()
 	{
-		Block.COLOR color = Block.COLOR.FIRST;
+		Block.COLOR color = Block.COLOR.PINK;
 		// 이번 레벨의 레벨 데이터를 가져온다.
 		LevelData level_data =
 			this.level_control.getCurrentLevelData();
@@ -1269,7 +1280,7 @@ public class BlockRoot : MonoBehaviour
 				if (this.blocks[x, y].color == Block.COLOR.Wall)
 				{
 					int color_index = Random.Range(
-					(int)Block.COLOR.FIRST, (int)Block.COLOR.LAST + 1);
+					(int)Block.COLOR.PINK, (int)Block.COLOR.LAST + 1);
 					this.blocks[x, y].setColor((Block.COLOR)color_index);
 				}
 			}
@@ -1448,6 +1459,9 @@ public class BlockRoot : MonoBehaviour
 		return (ret);
 	}
 
-
+	private void EnableInput()
+    {
+		isInputEnabled = true;
+    }
 }
 
