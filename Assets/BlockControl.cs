@@ -240,7 +240,7 @@ public class BlockControl : MonoBehaviour
 				break;
 			case Block.STEP.FALL:
 				// 속도에 중력의 영향을 준다.
-				this.fall.velocity += Physics.gravity.y * Time.deltaTime * 0.7f;
+				this.fall.velocity += Physics.gravity.y * Time.deltaTime * 1.5f;
 				// 세로 방향 위치를 계산.
 				this.position_offset.y += this.fall.velocity * Time.deltaTime;
 				if (this.position_offset.y < 0.0f)

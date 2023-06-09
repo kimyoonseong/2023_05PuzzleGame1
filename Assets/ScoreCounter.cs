@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+using UnityEngine.UI;
 public class ScoreCounter : MonoBehaviour
 {
 	public Block blockenum;
@@ -29,7 +30,13 @@ public class ScoreCounter : MonoBehaviour
 	private AudioSource WinSoundSource;
 	public AudioClip WinSound;
 
-
+	public Text PinkRemain;
+    public Text YellowRemain;
+    public Text GreenRemain;
+    public Text MagentaRemain;
+    public Text BlueRemain;
+    public Text OrangeRemain;
+	public Text Combo;
 	void Start()
 	{
 		stagenum.GetComponent<SceneControl>();		//stagenum초기화
@@ -51,7 +58,7 @@ public class ScoreCounter : MonoBehaviour
 			Debug.Log(stagenum.NowStage());
 			//this.last.cur_score = 40;
 			this.last.pink = Random.Range(10, 25);
-			this.last.blue = Random.Range(10, 25);
+			this.last.blue = Random.Range(10, 20);
 			this.last.yellow = Random.Range(10, 25);
 			this.last.green = Random.Range(10, 25);
 			this.last.magenta = Random.Range(10, 25);
@@ -84,8 +91,17 @@ public class ScoreCounter : MonoBehaviour
 
 		this.last.combo = 0;
 	}
-
-	void OnGUI()
+    private void Update()
+    {
+		PinkRemain.text = " X" + this.last.pink;
+		YellowRemain.text = " X" + this.last.yellow;
+		BlueRemain.text = " X" + this.last.blue;
+		GreenRemain.text = " X" + this.last.green;
+		MagentaRemain.text = " X" + this.last.magenta;
+		OrangeRemain.text = " X" + this.last.orange;
+		Combo.text = "연속콤보 : " + this.last.combo;
+	}
+    void OnGUI()
 	{
 		int x = 20;
 		int y = 50;
@@ -99,20 +115,9 @@ public class ScoreCounter : MonoBehaviour
 		//this.print_value(x + 20, y, "남은 보석 갯수", this.last.cur_score);
 		//y += 80;
 		
-		this.print_value(x + 1200, y, "연속콤보 수", this.last.combo);
-		y += 160;
-		this.print_value(x + 20, y, "남은 핑크색 보석", this.last.pink);
-		y += 80;
-		this.print_value(x + 20, y, "남은 노란색 보석", this.last.yellow);
-		y += 80;
-		this.print_value(x + 20, y, "남은 파랑색 보석", this.last.blue);
-		y += 80;
-		this.print_value(x + 20, y, "남은 초록색 보석", this.last.green);
-		y += 80;
-		this.print_value(x + 20, y, "남은 마젠타색 보석", this.last.magenta);
-		y += 80;
-		this.print_value(x + 20, y, "남은 오랜지색 보석", this.last.orange);
-		y += 80;
+		//this.print_value(x + 1200, y, "연속콤보 수", this.last.combo);
+		//y += 160;
+	
 		
 	}
 	public void print_value(int x, int y, string label, int value)

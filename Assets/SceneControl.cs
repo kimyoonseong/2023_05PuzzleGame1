@@ -29,7 +29,7 @@ public class SceneControl : MonoBehaviour
 	public Text scoretext;		//끝나면 패널에 남은시간 띄워줌 0506
 	public Text cleartext;		//모든 스테이지 끝나면 클리어텍스트로 남은시간띄워줌 0506
 	private int laststage = 3;       //라스트스테이지 이걸 변환해서 스테이지양 조절가능 20230506
-
+	public Text Timer;
 	public int stagenum = sceneNumber;		//static형인 sceneNumber를 옮기기위해 stagenum 변수만듬 20230506
 
 	private BlockRoot block_root = null;
@@ -144,9 +144,10 @@ public class SceneControl : MonoBehaviour
 			case STEP.PLAY:
 				GUI.color = Color.black;
 				 //경과 시간을 표시.
-				GUI.Label(new Rect(40.0f, 10.0f, 200.0f, 20.0f),
-						  "남은 시간" + Mathf.CeilToInt(this.Stage1_RemainTime).ToString() + "초",
-						  guistyle);
+				//GUI.Label(new Rect(40.0f, 10.0f, 200.0f, 20.0f),
+				//		  "남은 시간" + Mathf.CeilToInt(this.Stage1_RemainTime).ToString() + "초",
+				//		  guistyle);
+				Timer.text = "남은시간" + Mathf.CeilToInt(this.Stage1_RemainTime).ToString() + "초";
 				GUI.color = Color.white;
 				break;
 			case STEP.CLEAR:
