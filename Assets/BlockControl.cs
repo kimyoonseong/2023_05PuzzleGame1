@@ -72,8 +72,9 @@ public class BlockControl : MonoBehaviour
 	public GameObject Match5; //20230521 4매치 폭탄
 	public GameObject FeverBomb; //20230521 4매치 폭탄
 	public GameObject Obstacle; //20230521 4매치 폭탄
-								
-
+	public GameObject Match3Effect;//20230609 3매치 이펙트				
+	public GameObject Match4Effect;//20230609 4매치 이펙트	
+	public GameObject Match5Effect;//20230609 4매치 이펙트	
 	public Block.COLOR color = (Block.COLOR)0; // 블록 색.
 	public Block.COLOR pop5Color = (Block.COLOR)(-1); //20230510 5매치 블록색저장 클래스.
 	

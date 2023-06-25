@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 public class BlockRoot : MonoBehaviour
 {
-
+	public GameObject feverEffect;
+	//public GameObject Match3Effect;
 	//public GameObject BombPrefab = null;//4매치 폭탄 블록
 	public GameObject BlockPrefab = null; // 만들어 낼 블록의 프리팹.
 	public BlockControl[,] blocks; // 그리드.
@@ -91,6 +92,7 @@ public class BlockRoot : MonoBehaviour
 
 					foreach (BlockControl block in this.blocks)
 					{
+						
 						if (!block.isGrabbable())
 						{ // 블록을 잡을 수 없으면.
 							continue; // 다음 블록으로.
@@ -100,7 +102,7 @@ public class BlockRoot : MonoBehaviour
 						{
 							continue; // 다음 블록으로.
 						}
-
+						
 						//Debug.Log(block.pop5Color);
 						if (block.color == Block.COLOR.Bomb)//20230510 4매치폭탄 눌렸을때
 						{
@@ -112,7 +114,7 @@ public class BlockRoot : MonoBehaviour
 							{
 								if (blocks[x, block.i_pos.y].color != Block.COLOR.Wall)
 								{
-
+									this.blocks[x, block.i_pos.y].Match4Effect.SetActive(true);
 									this.blocks[x, block.i_pos.y].toVanishing();
 									//if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
 									//{
@@ -127,7 +129,7 @@ public class BlockRoot : MonoBehaviour
 							{
 								if (blocks[block.i_pos.x, y].color != Block.COLOR.Wall)
 								{
-
+									this.blocks[block.i_pos.x, y].Match4Effect.SetActive(true);
 									this.blocks[block.i_pos.x, y].toVanishing();
 
 
@@ -146,7 +148,7 @@ public class BlockRoot : MonoBehaviour
 								{
 
 
-
+									this.blocks[block.i_pos.x, y].Match4Effect.SetActive(true);
 									this.blocks[block.i_pos.x, y].toVanishing();
 
 									score_counter.ColorDiffCheck(blocks[block.i_pos.x, y].color);
@@ -164,7 +166,7 @@ public class BlockRoot : MonoBehaviour
 								}
 							}
 							isInputEnabled = false;
-							Invoke("EnableInput", 0.5f);
+							Invoke("EnableInput", 0.8f);
 							if (block.step == Block.STEP.IDLE)//발화중에 누르면 계속 점수 카운트 되는거 수정
 							{
 								continue;//
@@ -182,7 +184,7 @@ public class BlockRoot : MonoBehaviour
 							{
 								if (block.pop5Color == block2.color)
 								{
-
+									block2.Match4Effect.SetActive(true);
 									block2.toVanishing();
 
 									score_counter.ColorDiffCheck(block.pop5Color);
@@ -193,7 +195,7 @@ public class BlockRoot : MonoBehaviour
 							this.blocks[block.i_pos.x, block.i_pos.y].toVanishing();
 
 							isInputEnabled = false;
-							Invoke("EnableInput", 0.5f);
+							Invoke("EnableInput", 0.8f);
 
 						}
 						else if (block.color == Block.COLOR.FeverItem)//20230511 피버모드 아이템
@@ -210,6 +212,7 @@ public class BlockRoot : MonoBehaviour
 										{
 											if (blocks[block.i_pos.x + i, block.i_pos.y + j].color != Block.COLOR.Wall)
 											{
+												this.blocks[block.i_pos.x + i, block.i_pos.y + j].Match5Effect.SetActive(true);
 												this.blocks[block.i_pos.x + i, block.i_pos.y + j].toVanishing();
 
 												score_counter.ColorDiffCheck(blocks[block.i_pos.x + i, block.i_pos.y + j].color);
@@ -233,10 +236,19 @@ public class BlockRoot : MonoBehaviour
 								continue;//
 							}
 						}
+						foreach (BlockControl block3 in this.blocks)
+						{
+							block3.Match4Effect.SetActive(false);
+							block3.Match5Effect.SetActive(false);
+						}
 						// 처리 중인 블록을 grabbed_block에 등록.
 						this.grabbed_block = block;
 						// 잡았을 때의 처리를 실행.
 						if (this.grabbed_block.color == Block.COLOR.Obstacle)
+						{
+							grabbed_block = null;
+						}
+						else if (this.grabbed_block.color == Block.COLOR.Wall)
 						{
 							grabbed_block = null;
 						}
@@ -245,6 +257,7 @@ public class BlockRoot : MonoBehaviour
 							this.grabbed_block.beginGrab();
 						}
 						break;
+						
 					}
 				}
 			}
@@ -320,7 +333,7 @@ public class BlockRoot : MonoBehaviour
 				//블록을 잡고 이동을 하였을경우 모든 블록을 검사함. 20230506
 				foreach (BlockControl block in this.blocks)
 				{
-
+					block.Match3Effect.SetActive(false);
 					if (this.checkConnection(block))            //3매치블록이 겹치는경우
 					{
 						this.BlockChangeaudio.clip = this.CollectSound;
@@ -334,6 +347,8 @@ public class BlockRoot : MonoBehaviour
 							if (this.score_counter.last.combo == 7 * i)
 							{
 								BlockChangeaudio.PlayOneShot(FeverSound);
+								feverEffect.SetActive(true);
+								Invoke("turnoffFE", 1f);
 								CreateFeverBlock();
 							}
 						}
@@ -808,8 +823,11 @@ public class BlockRoot : MonoBehaviour
 			{
 				for (int x = lx; x < start.i_pos.x; x++)
 				{
+
 					// 나열된 같은 색 블록을 발화 상태로.
+					this.blocks[x, start.i_pos.y].Match3Effect.SetActive(true);
 					this.blocks[x, start.i_pos.y].toVanishing();
+					
 					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 색상확인해서 차감
 																					  //score_counter.
 					ret = true;
@@ -817,7 +835,9 @@ public class BlockRoot : MonoBehaviour
 				for (int x = start.i_pos.x + 1; x < rx + 1; x++)
 				{
 					// 나열된 같은 색 블록을 발화 상태로.
+					this.blocks[x, start.i_pos.y].Match3Effect.SetActive(true);
 					this.blocks[x, start.i_pos.y].toVanishing();
+					
 					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 색상확인해서 차감
 					ret = true;
 				}
@@ -835,15 +855,21 @@ public class BlockRoot : MonoBehaviour
 				for (int x = lx; x < start.i_pos.x; x++)
 				{
 					// 나열된 같은 색 블록을 발화 상태로.
+					this.blocks[x, start.i_pos.y].Match3Effect.SetActive(true);
 					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 색상확인해서 차감
+					
 					this.blocks[x, start.i_pos.y].toVanishing();
+					
 					ret = true;
 				}
 				for (int x = start.i_pos.x + 1; x < rx + 1; x++)
 				{
 					// 나열된 같은 색 블록을 발화 상태로.
+					this.blocks[x, start.i_pos.y].Match3Effect.SetActive(true);
 					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);//20230523 색상확인해서 차감
+					
 					this.blocks[x, start.i_pos.y].toVanishing();
+					
 					ret = true;
 				}
 
@@ -858,8 +884,11 @@ public class BlockRoot : MonoBehaviour
 				for (int x = lx; x < rx + 1; x++)
 				{
 					// 나열된 같은 색 블록을 발화 상태로.
+					this.blocks[x, start.i_pos.y].Match3Effect.SetActive(true);
 					score_counter.ColorDiffCheck(this.blocks[x, start.i_pos.y].color);
+					
 					this.blocks[x, start.i_pos.y].toVanishing();
+					
 					//근처에 방해물이 있는지 검사
 					DestroyInterruptBlock(blocks[x, start.i_pos.y]);
 					ret = true;
@@ -953,14 +982,17 @@ public class BlockRoot : MonoBehaviour
 				for (int y = dy; y < start.i_pos.y; y++) //20230510 4매치 일때  움직인 블록 제외 다 터뜨리는 for문
 				{
 					//밑부분 발화
-					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 색상확인해서 차감
+					this.blocks[start.i_pos.x, y].Match3Effect.SetActive(true);
+					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 색상확인해서 차감					
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
 				}
 				for (int y = start.i_pos.y + 1; y < uy + 1; y++)
 				{
+					this.blocks[start.i_pos.x, y].Match3Effect.SetActive(true);
 					// 윗부분 발화
 					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 색상확인해서 차감
+					
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
 				}
@@ -980,12 +1012,14 @@ public class BlockRoot : MonoBehaviour
 				{
 					//밑부분 발화
 					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 색상확인해서 차감
+					this.blocks[start.i_pos.x, y].Match3Effect.SetActive(true);
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
 				}
 				for (int y = start.i_pos.y + 1; y < uy + 1; y++)
 				{
 					// 윗부분 발화
+					this.blocks[start.i_pos.x, y].Match3Effect.SetActive(true);
 					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 색상확인해서 차감
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
@@ -996,9 +1030,11 @@ public class BlockRoot : MonoBehaviour
 			{
 				for (int y = dy; y < uy + 1; y++)
 				{
+					this.blocks[start.i_pos.x, y].Match3Effect.SetActive(true);
 					//근처에 방해물이 있는지 검사
 					score_counter.ColorDiffCheck(this.blocks[start.i_pos.x, y].color);//20230523 색상확인해서 차감
 					DestroyInterruptBlock(blocks[start.i_pos.x, y]);
+					
 					this.blocks[start.i_pos.x, y].toVanishing();
 					ret = true;
 				}
@@ -1176,21 +1212,25 @@ public class BlockRoot : MonoBehaviour
 	{
 		if (block.i_pos.x + 1 < Block.BLOCK_NUM_X && blocks[block.i_pos.x + 1, block.i_pos.y].color == Block.COLOR.Obstacle)
 		{
+			blocks[block.i_pos.x + 1, block.i_pos.y].Match3Effect.SetActive(true);
 			blocks[block.i_pos.x + 1, block.i_pos.y].toVanishing();
 			IntteruptCount--;
 		}
 		if (block.i_pos.x - 1 >= 0 && blocks[block.i_pos.x - 1, block.i_pos.y].color == Block.COLOR.Obstacle)
 		{
+			blocks[block.i_pos.x - 1, block.i_pos.y].Match3Effect.SetActive(true);
 			blocks[block.i_pos.x - 1, block.i_pos.y].toVanishing();
 			IntteruptCount--;
 		}
 		if (block.i_pos.y + 1 < Block.BLOCK_NUM_X && blocks[block.i_pos.x, block.i_pos.y + 1].color == Block.COLOR.Obstacle)
 		{
+			blocks[block.i_pos.x, block.i_pos.y + 1].Match3Effect.SetActive(true);
 			blocks[block.i_pos.x, block.i_pos.y + 1].toVanishing();
 			IntteruptCount--;
 		}
 		if (block.i_pos.y - 1 >= 0 && blocks[block.i_pos.x, block.i_pos.y - 1].color == Block.COLOR.Obstacle)
 		{
+			blocks[block.i_pos.x, block.i_pos.y - 1].Match3Effect.SetActive(true);
 			blocks[block.i_pos.x, block.i_pos.y - 1].toVanishing();
 			IntteruptCount--;
 		}
@@ -1507,6 +1547,10 @@ public class BlockRoot : MonoBehaviour
 	private void EnableInput()
 	{
 		isInputEnabled = true;
+	}
+	private void turnoffFE()
+	{
+		feverEffect.SetActive(false);
 	}
 }
 

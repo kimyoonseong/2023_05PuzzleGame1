@@ -900,7 +900,6 @@ GameObject:
   m_Component:
   - component: {fileID: 539538454}
   - component: {fileID: 539538456}
-  - component: {fileID: 539538455}
   m_Layer: 6
   m_Name: UICAM
   m_TagString: Untagged
@@ -923,14 +922,6 @@ Transform:
   m_Father: {fileID: 108377758}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!81 &539538455
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 539538453}
-  m_Enabled: 1
 --- !u!20 &539538456
 Camera:
   m_ObjectHideFlags: 0

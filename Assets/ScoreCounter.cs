@@ -57,35 +57,35 @@ public class ScoreCounter : MonoBehaviour
 		{
 			Debug.Log(stagenum.NowStage());
 			//this.last.cur_score = 40;
-			this.last.pink = Random.Range(10, 25);
-			this.last.blue = Random.Range(10, 20);
-			this.last.yellow = Random.Range(10, 25);
-			this.last.green = Random.Range(10, 25);
-			this.last.magenta = Random.Range(10, 25);
-			this.last.orange = Random.Range(10, 25); 
+			this.last.pink = Random.Range(17, 40);
+			this.last.blue = Random.Range(13, 25);
+			this.last.yellow = Random.Range(17, 40);
+			this.last.green = Random.Range(17, 45);
+			this.last.magenta = Random.Range(17, 45);
+			this.last.orange = Random.Range(17, 45); 
 		}
 
 		if (stagenum.NowStage() == 2)           //현재 스테이지를 확인하고 현재스테이지에따라 stagenum을 다르게하여 레벨디자인구현
 		{
 			Debug.Log(stagenum.NowStage());
-			this.last.pink = Random.Range(15, 30);
-			this.last.blue = Random.Range(15, 30);
-			this.last.yellow = Random.Range(15, 30);
-			this.last.green = Random.Range(15, 30);
-			this.last.magenta = Random.Range(15, 30);
-			this.last.orange = Random.Range(15, 30);
+			this.last.pink = Random.Range(20, 35);
+			this.last.blue = Random.Range(15, 20);
+			this.last.yellow = Random.Range(15,40);
+			this.last.green = Random.Range(15, 40);
+			this.last.magenta = Random.Range(15, 40);
+			this.last.orange = Random.Range(15, 40);
 			//this.last.cur_score = 45;
 		}
 
 		if (stagenum.NowStage() == 3)           //현재 스테이지를 확인하고 현재스테이지에따라 stagenum을 다르게하여 레벨디자인구현
 		{
 			Debug.Log(stagenum.NowStage());
-			this.last.pink = Random.Range(15, 30);
-			this.last.blue = Random.Range(15, 30);
-			this.last.yellow = Random.Range(15, 30);
-			this.last.green = Random.Range(15, 30);
-			this.last.magenta = Random.Range(15, 30);
-			this.last.orange = Random.Range(15, 30);
+			this.last.pink = Random.Range(15, 32);
+			this.last.blue = Random.Range(15, 19);
+			this.last.yellow = Random.Range(15, 32);
+			this.last.green = Random.Range(15, 32);
+			this.last.magenta = Random.Range(15, 32);
+			this.last.orange = Random.Range(15, 32);
 			//this.last.cur_score = 50;
 		}
 

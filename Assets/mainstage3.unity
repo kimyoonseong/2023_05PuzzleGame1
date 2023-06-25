@@ -123,6 +123,72 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &6144031
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_RootOrder
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -9.26
+      objectReference: {fileID: 0}
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4182916504451816543, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4604821422463684677, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_Name
+      value: fevereffect
+      objectReference: {fileID: 0}
+    - target: {fileID: 4604821422463684677, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+--- !u!1 &6144032 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4604821422463684677, guid: 9704b1cff04a2734aac46e0676452eb2, type: 3}
+  m_PrefabInstance: {fileID: 6144031}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &31070331
 GameObject:
   m_ObjectHideFlags: 0
@@ -661,9 +727,8 @@ RectTransform:
   - {fileID: 127937001}
   - {fileID: 1145146695}
   - {fileID: 2101535385}
-  - {fileID: 988880826}
   m_Father: {fileID: 2041393074}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2240,8 +2305,8 @@ RectTransform:
   - {fileID: 1148172973}
   - {fileID: 1834901325}
   - {fileID: 1133030791}
-  m_Father: {fileID: 203026518}
-  m_RootOrder: 4
+  m_Father: {fileID: 2041393074}
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -5317,7 +5382,7 @@ MonoBehaviour:
   UIpanal: {fileID: 604997397}
   ClearPanal: {fileID: 203026517}
   LosePanal: {fileID: 988880825}
-  scoretext: {fileID: 129211919}
+  scoretext: {fileID: 2101535386}
   cleartext: {fileID: 1696599592}
   Timer: {fileID: 1652438936}
   stagenum: 2
@@ -5517,6 +5582,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c2ab7cd7b262df42be8a23edf7c1eaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  feverEffect: {fileID: 6144032}
   BlockPrefab: {fileID: 2943107714475436911, guid: cec8e99e2da9dc34f9eaefb2dda09feb, type: 3}
   levelData: {fileID: 4900000, guid: ab7cfa8a35e334a428b6bbe6f1de316b, type: 3}
   FeverTimer: 5
@@ -5625,7 +5691,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1929721820
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6022,6 +6088,7 @@ RectTransform:
   - {fileID: 1652438938}
   - {fileID: 898454295}
   - {fileID: 604997398}
+  - {fileID: 988880826}
   - {fileID: 203026518}
   m_Father: {fileID: 0}
   m_RootOrder: 1
